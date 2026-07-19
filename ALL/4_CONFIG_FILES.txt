@@ -1,0 +1,696 @@
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : tsconfig.json 
+// TYPE     : .JSON
+// PATH     : tsconfig.json
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+{
+  "compilerOptions": {
+    // Environment setup & latest features
+    "lib": [
+      "ESNext"
+    ],
+    "target": "ESNext",
+    "module": "Preserve",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "types": [
+      "bun"
+    ],
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false
+  },
+  "exclude": [
+    "node_modules",
+    "ALL",
+    "ALL_REBUILT",
+    "logs"
+  ]
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : tsconfig.json 
+// TYPE     : .JSON
+// PATH     : tsconfig.json
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : package.json 
+// TYPE     : .JSON
+// PATH     : package.json
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+{
+  "name": "corpus",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "bun run typecheck && bun build --compile --outfile=./dist/consolidate ./src/index.ts",
+    "start": "bun run ./src/index.ts",
+    "test:log": "powershell -ExecutionPolicy Bypass -File ./log-tests.ps1"
+  },
+  "bin": {
+    "corpus": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/bun": "latest",
+    "@typescript-eslint/parser": "^8.64.0",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-eslint-plugin": "^7.4.2",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.7.0",
+    "istanbul": "^0.4.5",
+    "jiti": "^2.7.0",
+    "prettier": "^3.9.5",
+    "prettier-plugin-toml": "^2.0.6",
+    "typescript-eslint": "^8.64.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "picocolors": "^1.1.1"
+  }
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : package.json 
+// TYPE     : .JSON
+// PATH     : package.json
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : config.toml 
+// TYPE     : .TOML
+// PATH     : src/config/config.toml
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# FILE-PATH: src/config/config.toml
+
+# DEFAULT THEME
+theme = "dark"
+
+# DEFAULT OUTPUT DIRECTORIES
+outputDir = "ALL"
+rebuiltDir = "ALL_REBUILT"
+
+# DEFAULT GLOBAL EXCLUDES
+exclude = [
+  "**/node_modules/**",
+  "**/.git/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/*.lockb",
+  "**/*.lock",
+  "**/package-lock.json",
+  "**/*.map",
+  "**/*.png",
+  "**/*.jpg",
+  "**/*.ico",
+  "**/*.gif",
+  "**/*.mp4",
+  "**/*.mp3",
+  "**/*.pnpm-lock.yaml",
+  "**/*.min.js",
+  "**/*.js.map",
+  "**/*.min.css",
+  "coverage/**/*",
+  "node_modules/**/*",
+  "**/.env",
+  "*/ALL/**/*",
+  "ALL/**/*",
+  "*/ALL_REBUILT/**/*",
+  "ALL_REBUILT/**/*",
+]
+
+# DEFAULT INCLUDES BY TYPE
+
+[[include]]
+filename = "1_SOURCE_FILES.txt"
+description = "Source Files (Logic & Components)"
+include = [
+  "**/*.js",
+  "**/*.jsx",
+  "**/*.mjs",
+  "**/*.cjs",
+  "**/*.ts",
+  "**/*.tsx",
+  "**/*.mts",
+  "**/*.cts",
+  "**/*.vue",
+  "**/*.svelte",
+  "**/*.astro",
+  "**/*.py",
+  "**/*.pyw",
+  "**/*.sh",
+  "**/*.bash",
+  "**/*.ps1",
+  "**/*.c",
+  "**/*.h",
+  "**/*.cpp",
+  "**/*.hpp",
+  "**/*.cc",
+  "**/*.hh",
+  "**/*.rs",
+  "**/*.zig",
+  "**/*.java",
+  "**/*.kt",
+  "**/*.kts",
+  "**/*.scala",
+  "**/*.groovy",
+  "**/*.cs",
+  "**/*.fs",
+  "**/*.vb",
+  "**/*.swift",
+  "**/*.m",
+  "**/*.mm",
+  "**/*.dart",
+  "**/*.go",
+  "**/*.rb",
+  "**/*.rbw",
+  "**/*.php",
+  "**/*.hs",
+  "**/*.ex",
+  "**/*.exs",
+  "**/*.erl",
+  "**/*.clj",
+  "**/*.sql",
+]
+exclude = [
+  "**/*.config.*",
+  "**/config.*",
+  "**/*.test.*",
+  "**/*.spec.*",
+  "**/*_test.*",
+  "**/*_spec.*",
+  "**/*-test.*",
+  "**/__tests__/**/*",
+  "**/__snapshots__/**/*",
+  "**/__mocks__/**/*",
+  "**/tests/**/*",
+  "**/specs/**/*",
+  "**/test/**/*",
+  "test/**/*",
+  "tests/**/*",
+]
+
+[[include]]
+filename = "2_WEB_FILES.txt"
+description = "Webpage Markup & Templates"
+include = [
+  "**/*.html",
+  "**/*.htm",
+  "**/*.xhtml",
+  "**/*.xht",
+  "**/*.mhtml",
+  "**/*.ejs",
+  "**/*.pug",
+  "**/*.jade",
+  "**/*.handlebars",
+  "**/*.hbs",
+  "**/*.mustache",
+  "**/*.twig",
+  "**/*.nunjucks",
+  "**/*.njk",
+  "**/*.phtml",
+  "**/*.jsp",
+  "**/*.jspx",
+  "**/*.asp",
+  "**/*.aspx",
+  "**/*.cshtml",
+  "**/*.vbhtml",
+  "**/*.j2",
+  "**/*.jinja",
+  "**/*.jinja2",
+  "**/*.erb",
+  "**/*.webmanifest",
+]
+exclude = [
+  "**/*.test.*",
+  "**/*.spec.*",
+  "**/*_test.*",
+  "**/*_spec.*",
+  "**/__tests__/**/*",
+  "**/tests/**/*",
+  "**/test/**/*",
+]
+
+[[include]]
+filename = "3_STYLE_FILES.txt"
+description = "Style Files (css, scss, etc.)"
+include = [
+  "**/*.css",
+  "**/*.scss",
+  "**/*.sass",
+  "**/*.less",
+  "**/*.styl",
+  "**/*.pcss",
+  "**/*.sss",
+  "**/*.wxss",
+  "**/*.acss",
+]
+exclude = [
+  "**/.stylelintrc*",
+  "**/stylelint.config.*",
+  "**/*.config.css",
+  "**/tailwind.config.*",
+]
+
+[[include]]
+filename = "4_CONFIG_FILES.txt"
+description = "Configuration Files"
+include = [
+  "**/*.json",
+  "**/*.jsonc",
+  "**/*.yaml",
+  "**/*.yml",
+  "**/*.toml",
+  "**/*.config.*",
+  "**/config.*",
+  "**/.editorconfig",
+  "**/.browserslistrc",
+  "**/browserslist",
+  "**/*ignore",
+  "**/.gitattributes",
+  "**/.gitmodules",
+  "**/.env*",
+  "**/Dockerfile*",
+  "**/docker-compose*.yml",
+  "**/.github/workflows/*.yml",
+  "**/package.json",
+  "**/package-lock.json",
+  "**/yarn.lock",
+  "**/pnpm-lock.yaml",
+  "**/bun.lockb",
+  "**/composer.json",
+  "**/composer.lock",
+  "**/Cargo.toml",
+  "**/Cargo.lock",
+  "**/Gemfile",
+  "**/Gemfile.lock",
+  "**/.eslintrc*",
+  "**/eslint.config.*",
+  "**/.prettierrc*",
+  "**/prettier.config.*",
+  "**/.stylelintrc*",
+  "**/stylelint.config.*",
+  "**/tsconfig*.json",
+  "**/.babelrc*",
+  "**/babel.config.*",
+  "**/webpack.config.*",
+  "**/vite.config.*",
+  "**/rollup.config.*",
+  "**/next.config.*",
+  "**/nuxt.config.*",
+  "**/gatsby-config.*",
+  "**/gulpfile.*",
+  "**/*/settings.json",
+  "**/.vscode/**/*.json",
+  "**/.idea/**/*.xml",
+]
+exclude = ["**/package.js"]
+
+[[include]]
+filename = "5_TEST_FILES.txt"
+description = "Test Files (Strictly inside test directories)"
+include = ["**/tests/**/*", "**/test/**/*"]
+exclude = []
+
+[[include]]
+filename = "6_DOC_FILES.txt"
+description = "Documentation Files"
+include = [
+  "**/README*",
+  "**/readme*",
+  "**/README.*",
+  "**/readme.*",
+  "**/LICENSE*",
+  "**/license*",
+  "**/LICENSE.*",
+  "**/license.*",
+  "**/COPYING*",
+  "**/NOTICE*",
+  "**/CHANGELOG*",
+  "**/changelog*",
+  "**/CHANGELOG.*",
+  "**/changelog.*",
+  "**/HISTORY*",
+  "**/RELEASES*",
+  "**/*.md",
+  "**/*.markdown",
+  "**/*.mdx",
+  "**/*.rst",
+  "**/*.adoc",
+  "**/*.asciidoc",
+  "**/*.txt",
+  "**/CONTRIBUTING*",
+  "**/contributing*",
+  "**/CODE_OF_CONDUCT*",
+  "**/code_of_conduct*",
+  "**/SECURITY*",
+  "**/SUPPORT*",
+  "**/docs/**/*",
+  "**/doc/**/*",
+  "**/.github/ISSUE_TEMPLATE/**/*",
+  "**/.github/PULL_REQUEST_TEMPLATE/**/*",
+]
+exclude = ["**/node_modules/**/*"]
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : config.toml 
+// TYPE     : .TOML
+// PATH     : src/config/config.toml
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : presets.toml 
+// TYPE     : .TOML
+// PATH     : src/config/presets.toml
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# FILE-PATH: src/config/presets.toml
+
+#
+# PRESET DIRECTORY CHOICES
+#
+[[directory.standard]]
+out = "ALL"
+rebuilt = "ALL_REBUILT"
+
+[[directory.mirror]]
+out = "DIST"
+rebuilt = "DIST_REBUILT"
+
+[[directory.hidden]]
+out = ".archive"
+rebuilt = ".restored"
+
+#
+# PRESET EXCLUDE CHOICES
+#
+[[exclude_options]]
+value = "node_modules/**"
+label = "node_modules/**"
+hint = "Package dependencies"
+
+[[exclude_options]]
+value = ".git/**"
+label = ".git/**"
+hint = "Git source histories"
+
+[[exclude_options]]
+value = "dist/**"
+label = "dist/**"
+hint = "Production bundles"
+
+[[exclude_options]]
+value = "ALL/**"
+label = "ALL/**"
+hint = "Default internal output paths"
+
+[[exclude_options]]
+value = "ALL_REBUILT/**"
+label = "ALL_REBUILT/**"
+hint = "Default internal extraction paths"
+
+[[exclude_options]]
+value = "coverage/**"
+label = "Test Coverage"
+hint = "Istanbul/Vitest output logs"
+
+[[exclude_options]]
+value = ".env*"
+label = "Environment Files"
+hint = "Secrets & API tokens"
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : presets.toml 
+// TYPE     : .TOML
+// PATH     : src/config/presets.toml
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : prettier.config.ts 
+// TYPE     : .TS
+// PATH     : prettier.config.ts
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: prettier.config.ts
+
+import { type Config } from 'prettier';
+
+const config: Config = {
+  // Required to prevent Prettier from crashing/ignoring this file format in v3+
+  plugins: ['prettier-plugin-toml'],
+
+  arrowParens: 'avoid',
+  bracketSameLine: false,
+  objectWrap: 'collapse',
+  bracketSpacing: true,
+  semi: true,
+  experimentalOperatorPosition: 'end',
+  experimentalTernaries: false,
+  singleQuote: true,
+  jsxSingleQuote: true,
+  quoteProps: 'as-needed',
+  trailingComma: 'all',
+  singleAttributePerLine: false,
+  htmlWhitespaceSensitivity: 'css',
+  vueIndentScriptAndStyle: false,
+  proseWrap: 'preserve',
+  endOfLine: 'lf',
+  insertPragma: false,
+  printWidth: 80,
+  requirePragma: false,
+  tabWidth: 2,
+  useTabs: false,
+  embeddedLanguageFormatting: 'auto',
+
+  // Strict override block targeting the configuration file
+  overrides: [
+    {
+      files: ['*.toml', '**/config.toml', '**/presets.toml'],
+      options: {
+        parser: 'toml',
+        trailingComma: 'none',
+      },
+    },
+  ],
+};
+
+export default config;
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : prettier.config.ts 
+// TYPE     : .TS
+// PATH     : prettier.config.ts
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : eslint.config.ts 
+// TYPE     : .TS
+// PATH     : eslint.config.ts
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: eslint.config.ts
+
+import js from '@eslint/js';
+import tsParser from '@typescript-eslint/parser';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
+export default defineConfig([
+  // Global ignores
+  globalIgnores([
+    '.vscode/**',
+    '**/node_modules/**',
+    'public/**',
+    'dist/**',
+    '**/*.txt',
+    '**/*.pdf',
+    '**/ALL/**',
+    '**/ALL_REBUILT/**'
+  ]),
+  {
+    files: ['**/*.{js,mjs,cjs,jsx,ts,tsx}', './src/types.d.ts', './src/config.d.ts'],
+
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        projectService: true,
+        tsconfigRootDir: import.meta.dir,
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.serviceworker,
+        ...globals.node,
+      },
+    },
+
+    rules: {
+      // Formatting
+      quotes: [
+        'error',
+        'single',
+        { avoidEscape: true, allowTemplateLiterals: true },
+      ],
+      semi: ['error', 'always'],
+
+      // Eslint
+      'no-unused-vars': 'off',
+      'no-useless-assignment': 'off',
+      'no-control-regex': 'off',
+
+      // TypeScript
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-explicit-any': [
+        'warn',
+        { ignoreRestArgs: false },
+      ],
+    },
+  }
+]);
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : eslint.config.ts 
+// TYPE     : .TS
+// PATH     : eslint.config.ts
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : config.test.ts 
+// TYPE     : .TS
+// PATH     : tests/config.test.ts
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: tests/config.test.ts
+
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
+import path from 'path';
+
+const SANDBOX_DIR = './test-sandbox-config';
+const RUNTIME_CONFIG_PATH = path.join(process.cwd(), SANDBOX_DIR, 'runtime.config.json');
+
+// We ONLY mock Constants to redirect the runtime config file to our safe sandbox.
+// We let it read the REAL config.toml.
+mock.module('../src/components/Constants.ts', () => ({
+  Constants: {
+    RUNTIME_CONFIG_PATH: RUNTIME_CONFIG_PATH,
+  },
+}));
+
+import { getDefaultConfig, loadConfig, saveConfigToDisk } from '../src/components/Config';
+import { cleanupSandbox, createSandbox } from './setup';
+
+describe('Configuration Logic', () => {
+  beforeEach(async () => await createSandbox(SANDBOX_DIR));
+  afterEach(async () => await cleanupSandbox(SANDBOX_DIR));
+
+  test('getDefaultConfig should correctly parse the real config.toml', async () => {
+    const config = await getDefaultConfig();
+
+    // Check against the REAL defaults in your config.toml
+    expect(config.outputDir).toBe('ALL');
+    expect(config.rebuiltDir).toBe('ALL_REBUILT');
+
+    const excludes = [
+      '**/node_modules/**', '**/.git/**', '**/dist/**', '**/build/**', '**/*.lockb', '**/*.lock',
+      '**/package-lock.json', '**/*.map', '**/*.png', '**/*.jpg', '**/*.ico', '**/*.gif', '**/*.mp4',
+      '**/*.mp3', '**/*.pnpm-lock.yaml', '**/*.min.js', '**/*.js.map', '**/*.min.css', 'coverage/**/*',
+      'node_modules/**/*', 'ALL/**/*', '**/.env', '*/ALL/**/*', '*/ALL_REBUILT/**/*', 'C:\\Users\\dustin.r.dew.civ\\0. PROJECTS\\consolidate2\\runtime.config.json'
+    ];
+
+    // It should automatically add the runtime config path to the global excludes.
+    expect(config.exclude).toEqual(excludes);
+
+    // It should correctly parse the job-specific include blocks.
+    expect(config.include.length).toBeGreaterThan(0);
+
+    // Verify the structure of the first job in your real config
+    const firstJob = config.include[0];
+    expect(firstJob.filename).toBeDefined();
+    expect(Array.isArray(firstJob.exclude)).toBe(true);
+  });
+
+  test('loadConfig should return the default config if no runtime file exists', async () => {
+    const config = await loadConfig();
+
+    // Should fall back to the real default
+    expect(config.outputDir).toBe('CUSTOM_DIR');
+  });
+
+  test('saveConfigToDisk and loadConfig should correctly save and load changes', async () => {
+    const config = await getDefaultConfig();
+
+    // Modify a value
+    config.theme = 'light';
+    config.outputDir = 'CUSTOM_DIR';
+
+    // Save to the sandboxed runtime.config.json
+    await saveConfigToDisk(config);
+
+    // Load the config again
+    const reloadedConfig = await loadConfig();
+
+    // Verify that the changes were loaded from the file
+    expect(reloadedConfig.theme).toBe('light');
+    expect(reloadedConfig.outputDir).toBe('CUSTOM_DIR');
+  });
+
+  test('loadConfig should gracefully handle a corrupt runtime file', async () => {
+    // Create a corrupt/invalid JSON file in our sandbox.
+    await Bun.write(RUNTIME_CONFIG_PATH, 'this is not valid json');
+
+    // Try to load the config. It should catch the error and return the default.
+    const config = await loadConfig();
+
+    // Verify it fell back to the real default value.
+    expect(config.outputDir).toBe('CUSTOM_DIR');
+  });
+});
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : config.test.ts 
+// TYPE     : .TS
+// PATH     : tests/config.test.ts
+// PROCESSED: 2026-07-19T15:32:34.681Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

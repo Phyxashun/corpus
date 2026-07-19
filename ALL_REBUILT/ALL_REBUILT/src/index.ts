@@ -1,0 +1,35 @@
+// TYPE     : .TS
+// PATH     : ALL_REBUILT/src/index.ts
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// TYPE     : .TS
+// PATH     : src/index.ts
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/index.ts
+
+import App from './components/App';
+
+const Message = (msg: unknown): void => {
+  if (msg instanceof Error) {
+    console.error(`Fatal crash: ${msg.message}`);
+  } else {
+    console.error(`Fatal crash: ${msg}`);
+  }
+};
+
+/**
+ * MAIN ENTRY POINT
+ */
+if (import.meta.main) {
+  try {
+    await App.run();
+  } catch (err) {
+    Message(err);
+    process.exit(1);
+  }
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// TYPE     : .TS
+// PATH     : src/index.ts
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// TYPE     : .TS
+// PATH     : ALL_REBUILT/src/index.ts

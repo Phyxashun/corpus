@@ -1,0 +1,273 @@
+// TYPE     : .TOML
+// PATH     : src/config/config.toml
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# FILE-PATH: src/config/config.toml
+
+# DEFAULT THEME
+theme = "dark"
+
+# DEFAULT OUTPUT DIRECTORIES
+outputDir = "ALL"
+rebuiltDir = "ALL_REBUILT"
+
+# DEFAULT GLOBAL EXCLUDES
+exclude = [
+  "**/node_modules/**",
+  "**/.git/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/*.lockb",
+  "**/*.lock",
+  "**/package-lock.json",
+  "**/*.map",
+  "**/*.png",
+  "**/*.jpg",
+  "**/*.ico",
+  "**/*.gif",
+  "**/*.mp4",
+  "**/*.mp3",
+  "**/*.pnpm-lock.yaml",
+  "**/*.min.js",
+  "**/*.js.map",
+  "**/*.min.css",
+  "coverage/**/*",
+  "node_modules/**/*",
+  "ALL/**/*",
+  "**/.env",
+  "*/ALL/**/*",
+  "*/ALL_REBUILT/**/*",
+]
+
+# DEFAULT INCLUDES BY TYPE
+
+[[include]]
+filename = "1_SOURCE_FILES.txt"
+description = "Source Files (Logic & Components)"
+include = [
+  "**/*.js",
+  "**/*.jsx",
+  "**/*.mjs",
+  "**/*.cjs",
+  "**/*.ts",
+  "**/*.tsx",
+  "**/*.mts",
+  "**/*.cts",
+  "**/*.vue",
+  "**/*.svelte",
+  "**/*.astro",
+  "**/*.py",
+  "**/*.pyw",
+  "**/*.sh",
+  "**/*.bash",
+  "**/*.ps1",
+  "**/*.c",
+  "**/*.h",
+  "**/*.cpp",
+  "**/*.hpp",
+  "**/*.cc",
+  "**/*.hh",
+  "**/*.rs",
+  "**/*.zig",
+  "**/*.java",
+  "**/*.kt",
+  "**/*.kts",
+  "**/*.scala",
+  "**/*.groovy",
+  "**/*.cs",
+  "**/*.fs",
+  "**/*.vb",
+  "**/*.swift",
+  "**/*.m",
+  "**/*.mm",
+  "**/*.dart",
+  "**/*.go",
+  "**/*.rb",
+  "**/*.rbw",
+  "**/*.php",
+  "**/*.hs",
+  "**/*.ex",
+  "**/*.exs",
+  "**/*.erl",
+  "**/*.clj",
+  "**/*.sql",
+]
+exclude = [
+  "**/*.config.*",
+  "**/config.*",
+  "**/*.test.*",
+  "**/*.spec.*",
+  "**/*_test.*",
+  "**/*_spec.*",
+  "**/*-test.*",
+  "**/__tests__/**/*",
+  "**/__snapshots__/**/*",
+  "**/__mocks__/**/*",
+  "**/tests/**/*",
+  "**/specs/**/*",
+  "**/test/**/*",
+]
+
+[[include]]
+filename = "2_WEB_FILES.txt"
+description = "Webpage Markup & Templates"
+include = [
+  "**/*.html",
+  "**/*.htm",
+  "**/*.xhtml",
+  "**/*.xht",
+  "**/*.mhtml",
+  "**/*.ejs",
+  "**/*.pug",
+  "**/*.jade",
+  "**/*.handlebars",
+  "**/*.hbs",
+  "**/*.mustache",
+  "**/*.twig",
+  "**/*.nunjucks",
+  "**/*.njk",
+  "**/*.phtml",
+  "**/*.jsp",
+  "**/*.jspx",
+  "**/*.asp",
+  "**/*.aspx",
+  "**/*.cshtml",
+  "**/*.vbhtml",
+  "**/*.j2",
+  "**/*.jinja",
+  "**/*.jinja2",
+  "**/*.erb",
+  "**/*.webmanifest",
+]
+exclude = [
+  "**/*.test.*",
+  "**/*.spec.*",
+  "**/*_test.*",
+  "**/*_spec.*",
+  "**/__tests__/**/*",
+  "**/tests/**/*",
+  "**/test/**/*",
+]
+
+[[include]]
+filename = "3_STYLE_FILES.txt"
+description = "Style Files (css, scss, etc.)"
+include = [
+  "**/*.css",
+  "**/*.scss",
+  "**/*.sass",
+  "**/*.less",
+  "**/*.styl",
+  "**/*.pcss",
+  "**/*.sss",
+  "**/*.wxss",
+  "**/*.acss",
+]
+exclude = [
+  "**/.stylelintrc*",
+  "**/stylelint.config.*",
+  "**/*.config.css",
+  "**/tailwind.config.*",
+]
+
+[[include]]
+filename = "4_CONFIG_FILES.txt"
+description = "Configuration Files"
+include = [
+  "**/*.json",
+  "**/*.jsonc",
+  "**/*.yaml",
+  "**/*.yml",
+  "**/*.toml",
+  "**/*.config.*",
+  "**/config.*",
+  "**/.editorconfig",
+  "**/.browserslistrc",
+  "**/browserslist",
+  "**/*ignore",
+  "**/.gitattributes",
+  "**/.gitmodules",
+  "**/.env*",
+  "**/Dockerfile*",
+  "**/docker-compose*.yml",
+  "**/.github/workflows/*.yml",
+  "**/package.json",
+  "**/package-lock.json",
+  "**/yarn.lock",
+  "**/pnpm-lock.yaml",
+  "**/bun.lockb",
+  "**/composer.json",
+  "**/composer.lock",
+  "**/Cargo.toml",
+  "**/Cargo.lock",
+  "**/Gemfile",
+  "**/Gemfile.lock",
+  "**/.eslintrc*",
+  "**/eslint.config.*",
+  "**/.prettierrc*",
+  "**/prettier.config.*",
+  "**/.stylelintrc*",
+  "**/stylelint.config.*",
+  "**/tsconfig*.json",
+  "**/.babelrc*",
+  "**/babel.config.*",
+  "**/webpack.config.*",
+  "**/vite.config.*",
+  "**/rollup.config.*",
+  "**/next.config.*",
+  "**/nuxt.config.*",
+  "**/gatsby-config.*",
+  "**/gulpfile.*",
+  "**/*/settings.json",
+  "**/.vscode/**/*.json",
+  "**/.idea/**/*.xml",
+]
+exclude = ["**/package.js"]
+
+[[include]]
+filename = "5_TEST_FILES.txt"
+description = "Test Files (Strictly inside test directories)"
+include = ["**/test/**/*", "**/tests/**/*"]
+exclude = ["**/!(test|tests)/**", "!(test|tests)/**"]
+
+[[include]]
+filename = "6_DOC_FILES.txt"
+description = "Documentation Files"
+include = [
+  "**/README*",
+  "**/readme*",
+  "**/README.*",
+  "**/readme.*",
+  "**/LICENSE*",
+  "**/license*",
+  "**/LICENSE.*",
+  "**/license.*",
+  "**/COPYING*",
+  "**/NOTICE*",
+  "**/CHANGELOG*",
+  "**/changelog*",
+  "**/CHANGELOG.*",
+  "**/changelog.*",
+  "**/HISTORY*",
+  "**/RELEASES*",
+  "**/*.md",
+  "**/*.markdown",
+  "**/*.mdx",
+  "**/*.rst",
+  "**/*.adoc",
+  "**/*.asciidoc",
+  "**/*.txt",
+  "**/CONTRIBUTING*",
+  "**/contributing*",
+  "**/CODE_OF_CONDUCT*",
+  "**/code_of_conduct*",
+  "**/SECURITY*",
+  "**/SUPPORT*",
+  "**/docs/**/*",
+  "**/doc/**/*",
+  "**/.github/ISSUE_TEMPLATE/**/*",
+  "**/.github/PULL_REQUEST_TEMPLATE/**/*",
+]
+exclude = ["**/node_modules/**/*"]
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// TYPE     : .TOML
+// PATH     : src/config/config.toml

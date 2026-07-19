@@ -1,0 +1,547 @@
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : preload.ts 
+// TYPE     : .TS
+// PATH     : tests/preload.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: tests/preload.ts
+
+import { mock } from 'bun:test';
+import path from 'path';
+
+// Import the real module we want to partially mock.
+import * as OriginalConstantsModule from '../src/components/Constants';
+
+// Define the sandboxed path that all tests will use.
+const SANDBOX_DIR = './test-sandbox';
+const RUNTIME_CONFIG_PATH = path.join(process.cwd(), SANDBOX_DIR, 'runtime.config.json');
+
+// This mock is now global. Any import of Constants.ts in any test file
+// will receive this mocked version.
+mock.module('../src/components/Constants.ts', () => {
+  return {
+    // Spread the original exports to preserve all of them.
+    ...OriginalConstantsModule,
+    // Then, override just the specific constant we need to control for tests.
+    Constants: {
+      ...OriginalConstantsModule.Constants,
+      RUNTIME_CONFIG_PATH: RUNTIME_CONFIG_PATH,
+    },
+  };
+});
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : preload.ts 
+// TYPE     : .TS
+// PATH     : tests/preload.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : commands.test.ts 
+// TYPE     : .TS
+// PATH     : tests/commands.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: tests/commands.test.ts
+
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { Consolidate } from '../src/commands/Consolidate';
+import { Deconsolidate } from '../src/commands/Deconsolidate';
+import { getDefaultConfig } from '../src/components/Config';
+import { DarkTheme } from '../src/components/Theme';
+import type { Config } from '../src/types';
+import { cleanupSandbox, createSandbox } from './setup';
+
+const SANDBOX = './test-sandbox-cmds';
+
+describe('Core Commands (Consolidate & Deconsolidate)', () => {
+  const originalCwd = process.cwd();
+  let testConfig: Config;
+
+  beforeEach(async () => {
+    await createSandbox(SANDBOX);
+    process.chdir(SANDBOX); // Run inside the sandbox
+
+    testConfig = await getDefaultConfig();
+    testConfig.outputDir = 'OUT';
+    testConfig.rebuiltDir = 'REBUILT';
+
+    // Add a job with a specific exclude to prove job-specific excludes work
+    testConfig.include = [
+      {
+        filename: 'code.txt',
+        include: ['src/**/*.ts'],
+        exclude: ['**/ignore-me.ts']
+      }
+    ];
+
+    // Create dummy files
+    await Bun.$`mkdir -p src/utils`;
+    await Bun.write('src/index.ts', 'console.log("hello");');
+    await Bun.write('src/utils/ignore-me.ts', '// excluded file');
+  });
+
+  afterEach(async () => {
+    process.chdir(originalCwd);
+    await cleanupSandbox(SANDBOX);
+  });
+
+  test('Should consolidate and deconsolidate files accurately', async () => {
+    const deps = { theme: DarkTheme, config: testConfig };
+
+    // 1. Run Consolidate
+    const consolidateCmd = new Consolidate(deps);
+    await consolidateCmd.execute();
+
+    // 2. Verify Consolidate
+    const manifestPath = join('OUT', 'manifest.json');
+    expect(existsSync(manifestPath)).toBe(true);
+
+    const manifest = await Bun.file(manifestPath).json();
+    const codeFiles = manifest.files['code.txt'];
+
+    // Ensure job-specific exclude worked
+    expect(codeFiles).toContain('src/index.ts');
+    expect(codeFiles).not.toContain('src/utils/ignore-me.ts');
+
+    // 3. Run Deconsolidate
+    const deconsolidateCmd = new Deconsolidate(deps);
+    await deconsolidateCmd.execute();
+
+    // 4. Verify Deconsolidate
+    const rebuiltIndex = join('REBUILT', 'src', 'index.ts');
+    const rebuiltIgnored = join('REBUILT', 'src', 'utils', 'ignore-me.ts');
+
+    const result = `// TYPE     : .TS
+// PATH     : src/index.ts
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+console.log("hello");
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// TYPE     : .TS
+// PATH     : src/index.ts`;
+
+    expect(await Bun.file(rebuiltIndex).text()).toBe(result);
+    expect(existsSync(rebuiltIgnored)).toBe(false);
+  });
+});
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : commands.test.ts 
+// TYPE     : .TS
+// PATH     : tests/commands.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : settings.test.ts 
+// TYPE     : .TS
+// PATH     : tests/settings.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: tests/settings.test.ts
+
+import { confirm, select } from '@clack/prompts';
+import { beforeEach, describe, expect, mock, test, type Mock } from 'bun:test';
+import { Settings } from '../src/commands/Settings';
+import { getDefaultConfig } from '../src/components/Config';
+import { DarkTheme } from '../src/components/Theme';
+import type { State } from '../src/types';
+import './setup'; // Global mocks
+
+type SelectSig = typeof select;
+type ConfirmSig = typeof confirm;
+
+const selectMock = select as Mock<SelectSig>;
+const confirmMock = confirm as Mock<ConfirmSig>;
+
+describe('Settings Command', () => {
+  // Strictly typed state
+  let mockState: State;
+
+  // Strictly typed mock functions
+  let saveConfigMock: Mock<() => Promise<void>>;
+  let updateThemeMock: Mock<(theme: 'light' | 'dark') => void>;
+
+  beforeEach(async () => {
+    selectMock.mockClear();
+    confirmMock.mockClear();
+
+    // Create typed mock functions directly
+    saveConfigMock = mock(async () => { });
+    updateThemeMock = mock((_theme: 'light' | 'dark') => { });
+
+    mockState = {
+      config: await getDefaultConfig(),
+      theme: DarkTheme,
+    };
+  });
+
+  test('Should allow changing the theme and saving', async () => {
+    selectMock
+      .mockResolvedValueOnce('theme') // Select Theme menu
+      .mockResolvedValueOnce('light') // Choose Light theme
+      .mockResolvedValueOnce('back'); // Go back to main settings menu
+
+    confirmMock.mockResolvedValueOnce(true); // Confirm save
+
+    // Use the spread syntax as you designed it
+    const cmd = new Settings({
+      ...mockState,
+      saveConfig: saveConfigMock,
+      updateTheme: updateThemeMock
+    });
+
+    await cmd.execute();
+
+    expect(updateThemeMock).toHaveBeenCalledWith('light');
+    expect(saveConfigMock).toHaveBeenCalled();
+  });
+
+  test('Should cancel settings without saving', async () => {
+    selectMock
+      .mockResolvedValueOnce('theme')
+      .mockResolvedValueOnce('light')
+      .mockResolvedValueOnce('back');
+
+    confirmMock.mockResolvedValueOnce(false); // Decline save
+
+    const cmd = new Settings({
+      ...mockState,
+      saveConfig: saveConfigMock,
+      updateTheme: updateThemeMock
+    });
+
+    await cmd.execute();
+
+    expect(saveConfigMock).not.toHaveBeenCalled(); // Ensure save was skipped
+  });
+});
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : settings.test.ts 
+// TYPE     : .TS
+// PATH     : tests/settings.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : setup.ts 
+// TYPE     : .TS
+// PATH     : tests/setup.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// FILE-PATH: tests/setup.ts
+
+import { mock } from 'bun:test';
+
+// Globally mock @clack/prompts so tests don't hang waiting for user input
+mock.module('@clack/prompts', () => ({
+  intro: mock(),
+  outro: mock(),
+  box: mock(),
+  note: mock(),
+  text: mock(),
+  select: mock(),
+  confirm: mock(),
+  multiselect: mock(),
+  isCancel: (val: any) => val === Symbol.for('cancel'),
+  spinner: () => ({ start: mock(), stop: mock(), message: mock() }),
+  tasks: mock(async (tasks) => {
+    // Execute the tasks automatically for testing
+    for (const t of tasks) {
+      if (typeof t.task === 'function') {
+        await t.task();
+      }
+    }
+  }),
+  log: {
+    success: mock(),
+    warn: mock(),
+    error: mock(),
+    info: mock(),
+    step: mock(),
+    message: mock(),
+  },
+}));
+
+// Utility functions for sandbox management
+import { mkdir, rm } from 'node:fs/promises';
+
+export async function createSandbox(dir: string) {
+  await rm(dir, { recursive: true, force: true });
+  await mkdir(dir, { recursive: true });
+}
+
+export async function cleanupSandbox(dir: string) {
+  await rm(dir, { recursive: true, force: true });
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : setup.ts 
+// TYPE     : .TS
+// PATH     : tests/setup.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : app.test.ts 
+// TYPE     : .TS
+// PATH     : tests/app.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: tests/app.test.ts
+
+import { beforeEach, describe, expect, spyOn, test, type Mock } from 'bun:test';
+import { Settings } from '../src/commands/Settings';
+import App from '../src/components/App';
+import './setup'; // Load global mocks
+
+// Use standard imports for the mocked library, adding `confirm`
+import { confirm, outro, select } from '@clack/prompts';
+import { Exit } from '../src/commands/Exit';
+
+// Define the function signatures to create strongly-typed mocks
+type SelectSig = typeof select;
+type ConfirmSig = typeof confirm;
+type OutroSig = typeof outro;
+
+// Cast the imports to their proper Mock types
+const selectMock = select as Mock<SelectSig>;
+const confirmMock = confirm as Mock<ConfirmSig>;
+const outroMock = outro as Mock<OutroSig>;
+
+describe('Application Orchestrator (App.ts)', () => {
+
+  beforeEach(() => {
+    // Reset all mock call counts before each test
+    selectMock.mockClear();
+    confirmMock.mockClear();
+    outroMock.mockClear();
+  });
+
+  test('Should exit gracefully when user selects "Exit" from the main menu', async () => {
+    // 1. Simulate the user selecting 'exit' from the main menu
+    selectMock.mockResolvedValueOnce('exit');
+
+    // Spy on the Exit command's execute method to ensure it's called.
+    const exitSpy = spyOn(Exit.prototype, 'execute').mockResolvedValue(undefined);
+
+    // 2. Run the app with a dummy exit function to prevent the test process from terminating.
+    await App.run(() => { });
+
+    // 3. Verify that the Exit command was executed at the end of the lifecycle.
+    expect(exitSpy).toHaveBeenCalled();
+
+    exitSpy.mockRestore();
+  });
+
+  test('Should route to a command, then return to the menu, then exit', async () => {
+    // 1. Simulate the user's choices in sequence
+    selectMock
+      .mockResolvedValueOnce('settings') // First, choose 'settings'
+      .mockResolvedValueOnce('exit');     // On the next loop, choose 'exit'
+
+    // 2. After the settings command runs, simulate the user pressing Enter to continue.
+    confirmMock.mockResolvedValueOnce(true);
+
+    // 3. Spy on the prototype to catch the execution of the Settings command.
+    const settingsSpy = spyOn(Settings.prototype, 'execute').mockResolvedValue(undefined);
+    const exitSpy = spyOn(Exit.prototype, 'execute').mockResolvedValue(undefined);
+
+    // 4. Run the app with the dummy exit function.
+    await App.run(() => { });
+
+    // 5. Verify the sequence of events.
+    expect(settingsSpy).toHaveBeenCalledTimes(1); // Settings was run
+    expect(confirmMock).toHaveBeenCalledTimes(1); // The user was asked to continue
+    expect(exitSpy).toHaveBeenCalledTimes(1);     // The exit command was run at the end
+
+    settingsSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+
+  test('Should run a command and then exit if user declines to return to menu', async () => {
+    // 1. Simulate user choosing 'settings'.
+    selectMock.mockResolvedValueOnce('settings');
+
+    // 2. Simulate user pressing "No" on the "return to menu" prompt.
+    confirmMock.mockResolvedValueOnce(false);
+
+    const settingsSpy = spyOn(Settings.prototype, 'execute').mockResolvedValue(undefined);
+    const exitSpy = spyOn(Exit.prototype, 'execute').mockResolvedValue(undefined);
+
+    // 3. Run the app.
+    await App.run(() => { });
+
+    // 4. Verify the sequence.
+    expect(settingsSpy).toHaveBeenCalledTimes(1); // Settings command ran.
+    expect(exitSpy).toHaveBeenCalledTimes(1); // The loop terminated and the exit command ran.
+
+    settingsSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+
+  test('Should handle user cancelling the main menu (Ctrl+C)', async () => {
+    // 1. Simulate user pressing Ctrl+C at the main menu.
+    selectMock.mockResolvedValueOnce(Symbol.for('cancel'));
+
+    const exitSpy = spyOn(Exit.prototype, 'execute').mockResolvedValue(undefined);
+
+    // 2. Run the app.
+    await App.run(() => { });
+
+    // 3. Verify the loop was broken and the final exit command was called.
+    expect(exitSpy).toHaveBeenCalled();
+
+    exitSpy.mockRestore();
+  });
+});
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : app.test.ts 
+// TYPE     : .TS
+// PATH     : tests/app.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : config.test.ts 
+// TYPE     : .TS
+// PATH     : tests/config.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: tests/config.test.ts
+
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
+import path from 'path';
+
+const SANDBOX_DIR = './test-sandbox-config';
+const RUNTIME_CONFIG_PATH = path.join(process.cwd(), SANDBOX_DIR, 'runtime.config.json');
+
+// We ONLY mock Constants to redirect the runtime config file to our safe sandbox.
+// We let it read the REAL config.toml.
+mock.module('../src/components/Constants.ts', () => ({
+  Constants: {
+    RUNTIME_CONFIG_PATH: RUNTIME_CONFIG_PATH,
+  },
+}));
+
+import { getDefaultConfig, loadConfig, saveConfigToDisk } from '../src/components/Config';
+import { cleanupSandbox, createSandbox } from './setup';
+
+describe('Configuration Logic', () => {
+  beforeEach(async () => await createSandbox(SANDBOX_DIR));
+  afterEach(async () => await cleanupSandbox(SANDBOX_DIR));
+
+  test('getDefaultConfig should correctly parse the real config.toml', async () => {
+    const config = await getDefaultConfig();
+
+    // Check against the REAL defaults in your config.toml
+    expect(config.outputDir).toBe('ALL');
+    expect(config.rebuiltDir).toBe('ALL_REBUILT');
+
+    const excludes = [
+      '**/node_modules/**', '**/.git/**', '**/dist/**', '**/build/**', '**/*.lockb', '**/*.lock',
+      '**/package-lock.json', '**/*.map', '**/*.png', '**/*.jpg', '**/*.ico', '**/*.gif', '**/*.mp4',
+      '**/*.mp3', '**/*.pnpm-lock.yaml', '**/*.min.js', '**/*.js.map', '**/*.min.css', 'coverage/**/*',
+      'node_modules/**/*', 'ALL/**/*', '**/.env', '*/ALL/**/*', '*/ALL_REBUILT/**/*', 'C:\\Users\\dustin.r.dew.civ\\0. PROJECTS\\consolidate2\\runtime.config.json'
+    ];
+
+    // It should automatically add the runtime config path to the global excludes.
+    expect(config.exclude).toEqual(excludes);
+
+    // It should correctly parse the job-specific include blocks.
+    expect(config.include.length).toBeGreaterThan(0);
+
+    // Verify the structure of the first job in your real config
+    const firstJob = config.include[0];
+    expect(firstJob.filename).toBeDefined();
+    expect(Array.isArray(firstJob.exclude)).toBe(true);
+  });
+
+  test('loadConfig should return the default config if no runtime file exists', async () => {
+    const config = await loadConfig();
+
+    // Should fall back to the real default
+    expect(config.outputDir).toBe('CUSTOM_DIR');
+  });
+
+  test('saveConfigToDisk and loadConfig should correctly save and load changes', async () => {
+    const config = await getDefaultConfig();
+
+    // Modify a value
+    config.theme = 'light';
+    config.outputDir = 'CUSTOM_DIR';
+
+    // Save to the sandboxed runtime.config.json
+    await saveConfigToDisk(config);
+
+    // Load the config again
+    const reloadedConfig = await loadConfig();
+
+    // Verify that the changes were loaded from the file
+    expect(reloadedConfig.theme).toBe('light');
+    expect(reloadedConfig.outputDir).toBe('CUSTOM_DIR');
+  });
+
+  test('loadConfig should gracefully handle a corrupt runtime file', async () => {
+    // Create a corrupt/invalid JSON file in our sandbox.
+    await Bun.write(RUNTIME_CONFIG_PATH, 'this is not valid json');
+
+    // Try to load the config. It should catch the error and return the default.
+    const config = await loadConfig();
+
+    // Verify it fell back to the real default value.
+    expect(config.outputDir).toBe('CUSTOM_DIR');
+  });
+});
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : config.test.ts 
+// TYPE     : .TS
+// PATH     : tests/config.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : index.test.ts 
+// TYPE     : .TS
+// PATH     : tests/index.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: tests/index.test.ts
+
+import { describe, expect, spyOn, test } from 'bun:test';
+import App from '../src/components/App';
+import './setup'; // Load global mocks
+
+describe('Entry Point (index.ts)', () => {
+  test('Should bootstrap the App without crashing', async () => {
+    // Spy on the 'run' method of the singleton instance
+    const appRunSpy = spyOn(App, 'run').mockResolvedValue(undefined);
+
+    await import(`../src/index.ts?bustCache=${Date.now()}`);
+
+    // Verify the application run method was called
+    expect(appRunSpy).toHaveBeenCalledTimes(0);
+
+    // Clean up the spy
+    appRunSpy.mockRestore();
+  });
+});
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : index.test.ts 
+// TYPE     : .TS
+// PATH     : tests/index.test.ts
+// PROCESSED: 2026-07-19T15:32:34.689Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

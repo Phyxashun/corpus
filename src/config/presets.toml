@@ -1,0 +1,54 @@
+# FILE-PATH: src/config/presets.toml
+
+#
+# PRESET DIRECTORY CHOICES
+#
+[[directory.standard]]
+out = "ALL"
+rebuilt = "ALL_REBUILT"
+
+[[directory.mirror]]
+out = "DIST"
+rebuilt = "DIST_REBUILT"
+
+[[directory.hidden]]
+out = ".archive"
+rebuilt = ".restored"
+
+#
+# PRESET EXCLUDE CHOICES
+#
+[[exclude_options]]
+value = "node_modules/**"
+label = "node_modules/**"
+hint = "Package dependencies"
+
+[[exclude_options]]
+value = ".git/**"
+label = ".git/**"
+hint = "Git source histories"
+
+[[exclude_options]]
+value = "dist/**"
+label = "dist/**"
+hint = "Production bundles"
+
+[[exclude_options]]
+value = "ALL/**"
+label = "ALL/**"
+hint = "Default internal output paths"
+
+[[exclude_options]]
+value = "ALL_REBUILT/**"
+label = "ALL_REBUILT/**"
+hint = "Default internal extraction paths"
+
+[[exclude_options]]
+value = "coverage/**"
+label = "Test Coverage"
+hint = "Istanbul/Vitest output logs"
+
+[[exclude_options]]
+value = ".env*"
+label = "Environment Files"
+hint = "Secrets & API tokens"

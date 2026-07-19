@@ -1,0 +1,1800 @@
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : types.d.ts 
+// TYPE     : .TS
+// PATH     : src/types.d.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/types.d.ts
+
+import type { Config, IncludePattern } from './components/Config';
+import type { Theme, ThemeMode } from './components/Theme';
+
+export { Config, IncludePattern, Theme, ThemeMode };
+
+
+export interface MainMenuOptions {
+  value: string;
+  label: string;
+  hint?: string;
+}
+
+/**
+ * Represents the application's global state, including the
+ * active theme and the loaded configuration.
+ */
+export interface State {
+  theme: Theme;
+  config: Config;
+}
+
+/**
+ * Defines the interface for the abstract Command class
+ */
+export interface ICommand {
+  readonly key: string;
+  //static readonly label: string;
+  //static readonly hint: string;
+  execute(): Promise<void>;
+}
+
+/**
+ * Defines the dependencies required by the Consolidate command.
+ */
+export type ConsolidateDeps = State;
+
+/**
+ * Defines the dependencies required by the Deconsolidate command.
+ */
+export type DeconsolidateDeps = State;
+
+export interface DirectoryPreset {
+  out: string;
+  rebuilt: string;
+}
+
+export type ExcludePreset = MainMenuOptions;
+
+export interface PresetsStructure {
+  directory: Record<string, DirectoryPreset[]>;
+  exclude_options: ExcludePreset[];
+}
+
+/**
+ * Defines the dependencies required by the Settings command,
+ * including callbacks to modify the application state.
+ */
+export interface SettingsDeps extends State {
+  saveConfig: () => Promise<void>;
+  updateTheme: (type: ThemeMode) => void;
+}
+
+/**
+ * Defines the structure of the manifest file, which tracks
+ * consolidated files and empty directories.
+ */
+export interface Manifest {
+  files: Record<string, string[]>;
+  emptyDirectories: string[];
+}
+
+export interface IncludePattern {
+  readonly filename: string;
+  readonly description: string;
+  readonly include: readonly string[];
+  readonly exclude: readonly string[];
+}
+
+export interface Config {
+  theme: ThemeMode;
+  outputDir: string;
+  rebuiltDir: string;
+  exclude: string[];
+  include: IncludePattern[];
+}
+
+/**
+ * STRICT INTERMEDIATE INTERFACES FOR TYPE-SAFE PARSING
+ */
+export interface RawIncludePattern {
+  filename?: string;
+  description?: string;
+  include?: string[];
+  exclude?: string[];
+}
+
+export interface RawTomlConfig {
+  theme?: string;
+  outputDir?: string;
+  rebuiltDir?: string;
+  exclude?: string[];
+  include?: RawIncludePattern[];
+}
+
+/**
+ * Defines the dependencies required by the Exit command.
+ */
+export interface ExitDeps extends State {
+  exit: (code?: number) => void;
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : types.d.ts 
+// TYPE     : .TS
+// PATH     : src/types.d.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : index.ts 
+// TYPE     : .TS
+// PATH     : src/index.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/index.ts
+
+import App from './components/App';
+
+const Message = (msg: unknown): void => {
+  if (msg instanceof Error) {
+    console.error(`Fatal crash: ${msg.message}`);
+  } else {
+    console.error(`Fatal crash: ${msg}`);
+  }
+};
+
+/**
+ * MAIN ENTRY POINT
+ */
+if (import.meta.main) {
+  try {
+    await App.run();
+  } catch (err) {
+    Message(err);
+    process.exit(1);
+  }
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : index.ts 
+// TYPE     : .TS
+// PATH     : src/index.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Exit.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Exit.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/commands/Exit.ts
+
+import { outro } from '@clack/prompts';
+import type { ExitDeps, Theme } from '../types';
+import { Command } from './Command';
+
+/**
+ * CONSTANTS
+ */
+const STRINGS = {
+  key: 'exit',
+  label: 'Exit Program',
+  hint: 'Terminate CLI process',
+  goodbye: 'Exiting CLI tool. System process ended.',
+} as const;
+
+/**
+ * CONSOLIDATE CLASS
+ */
+export class Exit extends Command {
+  private theme: Theme;
+  readonly key = STRINGS.key;
+  readonly label: string;
+  readonly hint: string;
+
+  private readonly exitProcess: (code?: number) => void;
+
+  constructor(deps: ExitDeps) {
+    super(deps);
+    this.theme = deps.theme;
+
+    this.label = `${this.theme(STRINGS.label).secondary}`;
+    this.hint = `${this.theme(STRINGS.hint).secondary}`;
+
+    this.exitProcess = deps.exit ?? process.exit;
+  }
+
+  async execute(): Promise<void> {
+    outro(this.theme(STRINGS.goodbye).primary.muted);
+
+    this.exitProcess(0);
+  }
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Exit.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Exit.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Command.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Command.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/commands/Command.ts
+
+import type { ICommand } from '../types';
+
+/**
+ * ABSTRACT COMMAND CLASS
+ */
+export abstract class Command implements ICommand {
+  abstract readonly key: string;
+  abstract readonly label: string;
+  abstract readonly hint: string;
+
+  /**
+   * The constructor is a generic placeholder.
+   * Each command will define its own dependency interface.
+   */
+  constructor(_deps: unknown) { }
+
+  abstract execute(): Promise<void>;
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Command.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Command.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Settings.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Settings.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/commands/Settings.ts
+import { confirm, intro, isCancel, log, multiselect, note, select } from '@clack/prompts';
+import { getDefaultConfig } from '../components/Config';
+import Presets from '../config/presets.toml';
+import type { Config, DirectoryPreset, ExcludePreset, PresetsStructure, SettingsDeps, Theme, ThemeMode } from '../types';
+import { Command } from './Command';
+
+/**
+ * CONSTANTS
+ */
+const STRINGS = {
+  title: ' RUNTIME SETTINGS MANAGEMENT PANEL ',
+  subtitle: 'Select an environment item to adjust:',
+  key: 'settings',
+  label: 'App Settings Configuration',
+  hint: 'Modify settings',
+  optTheme: 'Switch Visual Theme Style',
+  optDirs: 'Select Preset Workspace Folders',
+  optGlobs: 'Manage Global Exclusion Rules',
+  optReset: 'Reset Application to Defaults',
+  optBack: 'Return to Main Control Menu',
+  themePrompt: 'Choose an interface theme style:',
+  themeDark: 'Dark Mode (High Contrast Cyan)',
+  themeLight: 'Light Mode (Classic Bold Blue)',
+  themeSuccess: 'Theme updated successfully!',
+  dirPrompt: 'Select an active directory profile configuration:',
+  dirPresetStandard: 'Standard Mapping (ALL / ALL_REBUILT)',
+  dirPresetMirror: 'Mirror Mapping (DIST / DIST_REBUILT)',
+  dirPresetHidden: 'Hidden Dot-Mapping (.archive / .restored)',
+  dirSuccess: 'Workspace target routing profile applied.',
+  globPrompt: 'Toggle path filters (Space to toggle, Enter to confirm):',
+  globSuccess: 'Exclusion rules successfully synced with configuration.',
+  cardTitle: 'STAGED CHANGES SUMMARY',
+  cardConfirmMessage: 'Apply and save these settings to disk?',
+  cardSaved: 'Configuration permanently written to disk.',
+  cardCancelled: 'Changes discarded. Reverted to previous settings.',
+  resetTitle: 'FACTORY RESET RUNTIME CONFIGURATION',
+  resetPrompt: 'Are you absolutely sure you want to restore defaults?',
+  resetSuccess: 'System preferences completely restored to defaults.',
+  resetAborted: 'Reset sequence cancelled. Core profile intact.',
+} as const;
+
+const PRESETS: PresetsStructure = {
+  directory: Presets.directory,
+  exclude_options: Presets.exclude_options,
+} as const;
+
+/**
+ * SETTINGS CLASS
+ */
+export class Settings extends Command {
+  readonly key = STRINGS.key;
+  readonly label = STRINGS.label;
+  readonly hint = STRINGS.hint;
+  private deps: SettingsDeps;
+
+  constructor(deps: SettingsDeps) {
+    super(deps);
+    this.deps = deps;
+  }
+
+  // Main Method: Orchestrates the settings flow
+  async execute(): Promise<void> {
+    const stagedConfig = structuredClone(this.deps.config);
+    let hasChanges = false;
+
+    while (true) {
+      console.clear();
+      intro(this.deps.theme.primary(STRINGS.title));
+
+      const choice = await select({
+        message: STRINGS.subtitle,
+        options: [
+          { value: 'theme', label: STRINGS.optTheme, hint: `[ ${stagedConfig.theme} ]` },
+          { value: 'dirs', label: STRINGS.optDirs, hint: `Out: ${stagedConfig.outputDir} | In: ${stagedConfig.rebuiltDir}` },
+          { value: 'globs_ex', label: STRINGS.optGlobs, hint: `${stagedConfig.exclude.length} targets active` },
+          { value: 'reset', label: STRINGS.optReset, hint: '⚠️ Restore factory configuration' },
+          { value: 'back', label: STRINGS.optBack, hint: hasChanges ? '👉 Review Staged Changes' : '' }
+        ]
+      });
+
+      if (isCancel(choice) || choice === 'back') break;
+
+      let changeMade = false;
+
+      switch (choice) {
+        case 'theme':
+          changeMade = await this._handleThemeChange(stagedConfig);
+          break;
+        case 'dirs':
+          changeMade = await this._handleDirectoryChange(stagedConfig);
+          break;
+        case 'globs_ex':
+          changeMade = await this._handleGlobChange(stagedConfig);
+          break;
+        case 'reset':
+          changeMade = await this._handleFactoryReset(stagedConfig);
+          break;
+      }
+
+      hasChanges = hasChanges || changeMade;
+      if (choice === 'reset' && changeMade) break;
+    }
+
+    if (hasChanges) {
+      await this._confirmAndSaveChanges(stagedConfig);
+    }
+  }
+
+  public updateThemeContext(newTheme: Theme): void {
+    this.deps.theme = newTheme;
+  }
+
+  // Helper Methods for Each Setting
+  private async _handleThemeChange(stagedConfig: Config): Promise<boolean> {
+    const selectedTheme = await select<ThemeMode>({
+      message: STRINGS.themePrompt,
+      options: [
+        { value: 'dark', label: STRINGS.themeDark },
+        { value: 'light', label: STRINGS.themeLight }
+      ]
+    });
+
+    if (isCancel(selectedTheme) || stagedConfig.theme === selectedTheme) {
+      return false;
+    }
+
+    stagedConfig.theme = selectedTheme;
+    return true;
+  }
+
+  private async _handleDirectoryChange(stagedConfig: Config): Promise<boolean> {
+    const presetKey = await select<string>({
+      message: STRINGS.dirPrompt,
+      options: Object.entries(PRESETS.directory).map(([key, profiles]) => {
+        const profile = (profiles as DirectoryPreset[])[0];
+        return { value: key, label: `${profile!.out} / ${profile!.rebuilt} (${key})` };
+      })
+    });
+
+    if (isCancel(presetKey)) return false;
+
+    const profile = (PRESETS.directory[presetKey] as DirectoryPreset[] | undefined)?.[0];
+    if (!profile) return false;
+
+    if (stagedConfig.outputDir === profile.out && stagedConfig.rebuiltDir === profile.rebuilt) {
+      return false;
+    }
+
+    stagedConfig.outputDir = profile.out;
+    stagedConfig.rebuiltDir = profile.rebuilt;
+    return true;
+  }
+
+  private async _handleGlobChange(stagedConfig: Config): Promise<boolean> {
+    const updatedSelection = await multiselect({
+      message: STRINGS.globPrompt,
+      options: PRESETS.exclude_options.map((opt: ExcludePreset) => ({
+        value: opt.value,
+        label: opt.label,
+        hint: opt.hint
+      })),
+      initialValues: stagedConfig.exclude,
+      required: false,
+    });
+
+    if (isCancel(updatedSelection)) return false;
+
+    const selectedList = updatedSelection as string[];
+
+    if (stagedConfig.exclude.length === selectedList.length && stagedConfig.exclude.every((val, idx) => val === selectedList[idx])) {
+      return false;
+    }
+
+    stagedConfig.exclude = selectedList;
+    return true;
+  }
+
+  private async _handleFactoryReset(stagedConfig: Config): Promise<boolean> {
+    note(
+      `Visual Theme: dark\nOutput Location: /ALL\nRebuilt Location: /ALL_REBUILT`,
+      STRINGS.resetTitle
+    );
+
+    const confirmReset = await confirm({ message: STRINGS.resetPrompt });
+
+    if (isCancel(confirmReset) || !confirmReset) {
+      log.warn(STRINGS.resetAborted);
+      await Bun.sleep(1000);
+      return false;
+    }
+
+    // Unwrapped Async Reference Bug Fix
+    const defaultData = await getDefaultConfig();
+    Object.assign(stagedConfig, defaultData);
+
+    log.success(STRINGS.resetSuccess);
+    await Bun.sleep(1000);
+    return true;
+  }
+
+  private async _confirmAndSaveChanges(stagedConfig: Config): Promise<void> {
+    console.clear();
+    note(
+      `Visual Theme: ${stagedConfig.theme.toUpperCase()}\nOutput Location: /${stagedConfig.outputDir}\nRebuilt Location: /${stagedConfig.rebuiltDir}\nActive Excludes: ${stagedConfig.exclude.length} rule(s) configured`,
+      STRINGS.cardTitle
+    );
+
+    const confirmSave = await confirm({ message: STRINGS.cardConfirmMessage });
+
+    if (isCancel(confirmSave) || !confirmSave) {
+      log.warn(STRINGS.cardCancelled);
+      await Bun.sleep(1200);
+      return;
+    }
+
+    Object.assign(this.deps.config, stagedConfig);
+    this.deps.updateTheme(stagedConfig.theme as ThemeMode);
+    await this.deps.saveConfig();
+
+    log.success(STRINGS.cardSaved);
+    await Bun.sleep(1200);
+  }
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Settings.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Settings.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Consolidate.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Consolidate.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/commands/Consolidate.ts
+import { box, intro, log, note, tasks } from '@clack/prompts';
+import path from 'path';
+import { Constants } from '../components/Constants';
+import type { Config, ConsolidateDeps, IncludePattern, Manifest, Theme } from '../types';
+import { Command } from './Command';
+
+const toPosixPath = (p: string) => p.replace(/\\/g, '/');
+
+const STRINGS = {
+  title: 'RUNNING CONSOLIDATION',
+  key: 'consolidate',
+  label: 'Consolidate Codebase',
+  hint: 'Combines project files',
+  excludedTitle: 'Global Excluded Patterns',
+  success: 'Total project files successfully consolidated!',
+  complete: 'Entire project consolidated inside',
+  total: 'Total files processed:',
+  error: 'Failed to consolidate codebase files.',
+} as const;
+
+export class Consolidate extends Command {
+  readonly key = STRINGS.key;
+  readonly label = STRINGS.label;
+  readonly hint = STRINGS.hint;
+  private gitignore: string[] = [];
+  private theme: Theme;
+  private config: Config;
+  private totalCount: number = 0;
+
+  constructor(deps: ConsolidateDeps) {
+    super(deps);
+    this.theme = deps.theme;
+    this.config = deps.config;
+  }
+
+  private async loadGitignore(): Promise<void> {
+    const gitignoreFile = Bun.file(Constants.GITIGNORE_PATH);
+    if (await gitignoreFile.exists()) {
+      const content = await gitignoreFile.text();
+      this.gitignore = content
+        .split(/\r?\n/)
+        .filter(line => line.trim() && !line.startsWith('#'));
+    }
+  }
+
+  private async findEmptyDirs(dir: string, excludes: string[]): Promise<string[]> {
+    const results: string[] = [];
+    const excludeGlobs = excludes.map(ex => new Bun.Glob(ex));
+
+    // Create broad matcher to correctly catch naked directory paths during exclusion checks
+    const directoryScanner = new Bun.Glob('**/');
+
+    for await (const currentDir of directoryScanner.scan({ cwd: dir, onlyFiles: false })) {
+      const posixDir = toPosixPath(currentDir);
+      if (!posixDir || posixDir === './' || posixDir === '../') continue;
+
+      // Clean trailing slash for standard directory evaluation comparisons
+      const cleanDirCheck = posixDir.endsWith('/') ? posixDir.slice(0, -1) : posixDir;
+
+      // Match against both the raw folder name and the broad nested contextual path
+      if (excludeGlobs.some(glob => glob.match(cleanDirCheck) || glob.match(posixDir))) {
+        continue;
+      }
+
+      try {
+        let hasContents = false;
+        const contentsScanner = new Bun.Glob(`${cleanDirCheck}/*`);
+
+        for await (const _contents of contentsScanner.scan({ cwd: dir, onlyFiles: false })) { // eslint-disable-line @typescript-eslint/no-unused-vars
+          hasContents = true;
+          break; // Stop immediately on first file detection for rapid processing
+        }
+
+        if (!hasContents) {
+          results.push(cleanDirCheck);
+        }
+      } catch {
+        // Soft catch to bypass structural/permission locked folders
+        continue;
+      }
+    }
+    return results;
+  }
+
+  async execute(): Promise<void> {
+    intro(`${this.theme(STRINGS.title).title()}`);
+    await this.loadGitignore();
+
+    // Define Global Excludes (Base Excludes + Gitignore)
+    const globalExcludes = [...new Set([...this.config.exclude, ...this.gitignore])];
+    note(`${this.theme.muted(globalExcludes.join(', '))}`, STRINGS.excludedTitle);
+
+    const { outputDir } = this.config;
+
+    try {
+      await Bun.$`rm -rf ${outputDir}`;
+      await Bun.$`mkdir -p ${outputDir}`;
+
+      const manifestData: Manifest = { files: {}, emptyDirectories: [] };
+      let counter = 0;
+      this.totalCount = 0; // Explicit reset loop tracking point
+
+      const allTasks = this.config.include.map((job) => ({
+        title: `Consolidating ${this.theme.bold(job.description || job.filename)}`,
+        task: async (): Promise<string> => {
+          counter++;
+          // Merge Global Excludes with this Job's specific Excludes
+          const combinedExcludesForJob = [...new Set([...globalExcludes, ...job.exclude])];
+          const fileCount = await this.processJob(job, combinedExcludesForJob, manifestData);
+
+          const rawDesc = job.description || job.filename;
+          const formattedDesc = rawDesc.charAt(0).toUpperCase() + rawDesc.slice(1).toLowerCase();
+          const styledCount = `${this.theme.bold(this.theme.warning(`${fileCount}`))}`;
+
+          return `${styledCount} ${this.theme.color(formattedDesc)} consolidated.`;
+        },
+      }));
+
+      await tasks(allTasks);
+
+      manifestData.emptyDirectories = await this.findEmptyDirs('.', globalExcludes);
+      await Bun.write(path.join(outputDir, 'manifest.json'), JSON.stringify(manifestData, null, 2));
+
+      const outputDirectory = `(${this.theme.muted('/' + outputDir)})`;
+      const fileCount = `${this.theme.bold(this.totalCount.toString())}`;
+      const countMessage = `${this.theme.bold(counter.toString())}`;
+
+      const complete = `\n${this.theme.success(`${STRINGS.complete} ${outputDirectory}`)}\n`;
+      const totalCount = `${this.theme.success(`${STRINGS.total} ${fileCount}`)}\n`;
+      const success = `${this.theme.success(`${countMessage} ${STRINGS.success}`)}\n`;
+
+      log.message();
+      box(`${complete}${totalCount}${success}`, 'Consolidate Results');
+    } catch (err) {
+      log.error(`${this.theme.error(STRINGS.error)}`);
+      if (err instanceof Error) log.error(`${this.theme.error(err.message)}`);
+    }
+  }
+
+  private async processJob(job: IncludePattern, excludes: string[], manifest: Manifest): Promise<number> {
+    const excludeGlobs = excludes.map(ex => new Bun.Glob(ex));
+    const includePaths = new Set<string>();
+
+    for (const pattern of job.include) {
+      const glob = new Bun.Glob(pattern);
+      for await (const file of glob.scan({ cwd: '.' })) {
+        const posixFile = toPosixPath(file);
+
+
+        if (!excludeGlobs.some(g => g.match(posixFile))) {
+          includePaths.add(file);
+        }
+      }
+    }
+
+    const uniquePaths = [...includePaths];
+    if (uniquePaths.length === 0) return 0;
+
+    manifest.files[job.filename] = uniquePaths.map(p => toPosixPath(p));
+
+    const fileContents = await Promise.all(
+      uniquePaths.map(async (filePath) => {
+        const content = await Bun.file(filePath).text();
+        return `${Constants.getStartBanner(filePath)}\n${content.trim()}\n${Constants.getEndBanner(filePath)}`;
+      })
+    );
+
+    // Increment absolute file totals safely after parallel promises resolve to prevent memory races
+    this.totalCount += uniquePaths.length;
+
+    await Bun.write(
+      path.join(this.config.outputDir, job.filename),
+      fileContents.join(`\n\n${Constants.TEARLINE_MARKER}\n\n`)
+    );
+
+    return uniquePaths.length;
+  }
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Consolidate.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Consolidate.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Deconsolidate.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Deconsolidate.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/commands/Deconsolidate.ts
+
+import { intro, log, note, tasks } from '@clack/prompts';
+import path from 'path';
+import { Constants } from '../components/Constants';
+import type { Config, DeconsolidateDeps, Manifest, Theme } from '../types';
+import { Command } from './Command';
+
+/**
+ * CONSTANTS
+ */
+const STRINGS = {
+  title: 'RUNNING DECONSOLIDATION',
+  key: 'deconsolidate',
+  label: 'Deconsolidate Archive',
+  hint: 'Rebuild everything',
+  excludedTitle: 'Excluded Patterns',
+  success: 'Entire directory state restored inside',
+  error: 'Deconsolidation sequence crashed.',
+} as const;
+
+// Refined Regex to be more specific and avoid removing legitimate code.
+//const PATH_REGEX = /^\/\/ FILE NAME: : ([^\n]+)/m;
+const START_BANNER_REGEX = /^\s*\/\/(?:■+)-< START >-(?:■+)\s*/;
+const END_BANNER_REGEX = /\/\/(?:■+)-< {2}END {2}>-(?:■+)\s*$/;
+const METADATA_LINE_REGEX = /^\/\/ (FILE NAME|TYPE|PATH|PROCESSED):[^\n]*\n?/gm;
+
+
+/**
+ * DECONSOLIDATE CLASS
+ */
+export class Deconsolidate extends Command {
+  readonly key = STRINGS.key;
+
+  readonly label = STRINGS.label;
+  readonly hint = STRINGS.hint;
+
+  private theme: Theme;
+  private config: Config;
+
+  constructor(deps: DeconsolidateDeps) {
+    super(deps);
+    this.theme = deps.theme;
+    this.config = deps.config;
+  }
+
+  async execute(): Promise<void> {
+    intro(`${this.theme.title(STRINGS.title)}`);
+
+    const { outputDir, rebuiltDir, exclude } = this.config;
+    const manifestPath = path.join(outputDir, 'manifest.json');
+
+    if (!(await Bun.file(manifestPath).exists())) {
+      log.error(`${this.theme.error(`No manifest found in /${outputDir}. Please consolidate first.`)}`);
+      return;
+    }
+
+    note(`${this.theme.muted(exclude.join(', '))}`, STRINGS.excludedTitle);
+
+    try {
+      await Bun.$`rm -rf ${rebuiltDir}`;
+      const manifest: Manifest = await Bun.file(manifestPath).json();
+
+      if (manifest.emptyDirectories?.length > 0) {
+        await Promise.all(
+          manifest.emptyDirectories.map((dir: string) =>
+            Bun.$`mkdir -p ${path.join(rebuiltDir, dir)}`
+          )
+        );
+      }
+
+      let totalFilesRecreated = 0;
+
+      const allTasks = Object.entries(manifest.files).map(([filename, _filePaths]) => ({
+        title: `Deconsolidating from ${this.theme.bold(filename)}`,
+        task: async (): Promise<string> => {
+          const txtFile = path.join(outputDir, filename);
+          if (!(await Bun.file(txtFile).exists())) {
+            return `${this.theme.muted('Source .txt file not found, skipping.')}`;
+          }
+
+          const rawText = await Bun.file(txtFile).text();
+          const fileSegments = rawText.split(Constants.TEARLINE_MARKER);
+
+          let filesProcessedInJob = 0;
+
+          for (const segment of fileSegments) {
+            const trimmedSegment = segment.trim();
+            if (!trimmedSegment) continue;
+
+            // Use a more reliable way to get the original path from the banner
+            const bannerLines = trimmedSegment.split('\n');
+            const pathLine = bannerLines.find(line => line.startsWith('// PATH     :'));
+            if (pathLine) {
+              const originalPath = pathLine.split(':')[1]!.trim();
+
+              // More robustly strip the generated banner and metadata
+              const content = trimmedSegment
+                .replace(START_BANNER_REGEX, '')
+                .replace(END_BANNER_REGEX, '')
+                .replace(METADATA_LINE_REGEX, '')
+                .trim();
+
+              const writePath = path.join(rebuiltDir, originalPath);
+              const dirToWrite = path.dirname(writePath);
+              await Bun.$`mkdir -p ${dirToWrite}`;
+              await Bun.write(writePath, content);
+
+              filesProcessedInJob++;
+            }
+          }
+          totalFilesRecreated += filesProcessedInJob;
+          const styledCount = `${this.theme.bold(this.theme.warning(filesProcessedInJob.toString()))}`;
+          return `${styledCount} ${this.theme.color('files recreated from this segment.')}`;
+        },
+      }));
+
+      await tasks(allTasks);
+
+      const styledTotal = `${this.theme.bold(this.theme.warning(totalFilesRecreated.toString()))}`;
+      const styledRebuiltDir = `${this.theme.muted('/' + rebuiltDir)}`;
+      const success = `${this.theme.success(`${STRINGS.success} ${styledRebuiltDir}.`)}`;
+      const finalCount = `${this.theme.success(`Total files recreated: `)}${styledTotal}`;
+
+      log.step(`${success}`);
+      log.success(`${finalCount}`);
+    } catch (err) {
+      log.error(`${this.theme.error(STRINGS.error)}`);
+      if (err instanceof Error) {
+        log.error(`${this.theme.error(err.message)}`);
+      }
+    }
+  }
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Deconsolidate.ts 
+// TYPE     : .TS
+// PATH     : src/commands/Deconsolidate.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Config.ts 
+// TYPE     : .TS
+// PATH     : src/components/Config.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/components/Config.ts
+import path from 'path';
+import type { Config, IncludePattern, RawIncludePattern, RawTomlConfig } from '../types';
+import { Constants } from './Constants';
+import type { ThemeMode } from './Theme';
+
+/**
+ * CONSTANTS
+ */
+const RUNTIME_CONFIG_PATH = Constants.RUNTIME_CONFIG_PATH;
+const BASE_CONFIG_PATH = path.join(import.meta.dir, '../config/config.toml');
+const CONFIG_KEYS = ['theme', 'outputDir', 'rebuiltDir', 'exclude', 'include'] as const;
+
+/**
+ * MAIN FUNCTIONS
+ */
+export function assignKey<T, K extends keyof T>(target: T, source: Partial<T>, key: K): void {
+  const value = source[key];
+  if (value !== undefined) {
+    target[key] = value;
+  }
+}
+
+export async function getDefaultConfig(): Promise<Config> {
+  const tomlText = await Bun.file(BASE_CONFIG_PATH).text();
+
+  // Cast directly to the strict intermediate type structure instead of 'any'
+  const parsedConfig = Bun.TOML.parse(tomlText) as unknown as RawTomlConfig;
+
+  const parsedInclude = Array.isArray(parsedConfig.include) ? parsedConfig.include : [];
+  const parsedExclude = Array.isArray(parsedConfig.exclude) ? parsedConfig.exclude : [];
+
+  // Preserve job-specific excludes safely without any runtime type-stripping leaks
+  const mappedIncludes: IncludePattern[] = parsedInclude.map((inc: RawIncludePattern) => ({
+    filename: inc.filename ?? 'untitled.txt',
+    description: inc.description ?? '',
+    include: Array.isArray(inc.include) ? inc.include : [],
+    exclude: Array.isArray(inc.exclude) ? inc.exclude : []
+  }));
+
+  return {
+    theme: (parsedConfig.theme === 'light' ? 'light' : 'dark') as ThemeMode,
+    outputDir: parsedConfig.outputDir ?? './output',
+    rebuiltDir: parsedConfig.rebuiltDir ?? './rebuilt',
+    exclude: [...parsedExclude, RUNTIME_CONFIG_PATH],
+    include: mappedIncludes,
+  };
+}
+
+export async function loadConfig(): Promise<Config> {
+  const configFile = Bun.file(RUNTIME_CONFIG_PATH);
+  const tomlConfig = await getDefaultConfig();
+
+  if (!(await configFile.exists())) return tomlConfig;
+
+  try {
+    // Deep clone using the strict Config structural schema target type
+    const userConfig: Config = JSON.parse(JSON.stringify(tomlConfig)) as Config;
+    const parsed = await configFile.json() as Partial<Config>;
+
+    CONFIG_KEYS.forEach((key) => {
+      assignKey(userConfig, parsed, key);
+    });
+
+    return userConfig;
+  } catch {
+    return tomlConfig;
+  }
+}
+
+export async function saveConfigToDisk(config: Config): Promise<void> {
+  await Bun.write(RUNTIME_CONFIG_PATH, JSON.stringify(config, null, 2));
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Config.ts 
+// TYPE     : .TS
+// PATH     : src/components/Config.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Theme.ts 
+// TYPE     : .TS
+// PATH     : src/components/Theme.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/components/theme.ts
+/**
+ * STANDALONE (+ picocolors)
+ * DRACULA INSPIRED
+ *
+ * Chainable Theme
+ */
+import pc from 'picocolors';
+
+/**
+ * CONSTANTS (Official Dracula Color Palette ANSI Mappings)
+ * Dracula hex colors translated to closest standard/bright ANSI equivalents.
+ */
+const DRACULA = {
+  background: pc.bgBlack, //: #282a36
+  currentLine: pc.bgBlackBright, //: #44475a
+  foreground: pc.white, //: #f8f8f2
+  comment: pc.gray, //: #6272a4
+  cyan: pc.cyan, //: #8be9fd
+  green: pc.green, //: #50fa7b
+  orange: pc.yellow, //: #ffb86c
+  pink: pc.magenta, //: #ff79c6
+  purple: pc.magentaBright, //: #bd93f9
+  red: pc.red, //: #ff5555
+  yellow: pc.yellowBright, //: #f1fa8c
+};
+
+/**
+ * Dracula Dark
+ * Adapts elements for dark terminal backgrounds.
+ */
+const DARK_THEME: DefaultTheme = {
+  primary: (txt) => DRACULA.purple(txt),
+  secondary: (txt) => DRACULA.pink(txt),
+  success: (txt) => DRACULA.green(txt),
+  warning: (txt) => DRACULA.orange(txt),
+  error: (txt) => DRACULA.red(txt),
+  info: (txt) => DRACULA.cyan(txt),
+  muted: (txt) => DRACULA.comment(txt),
+  title: (txt) => pc.bgMagentaBright(pc.bold(pc.whiteBright(` ${txt} `))),
+  subtitle: (txt) => pc.dim(pc.white(txt)),
+  color: (txt) => DRACULA.foreground(txt),
+  backgroundColor: (txt) => DRACULA.background(` ${txt} `),
+  bold: (txt) => pc.bold(txt),
+  italic: (txt) => pc.italic(txt),
+  textDecoration: (txt) => pc.underline(txt),
+  textTransform: (txt) => txt.toUpperCase(),
+};
+
+/**
+ * Dracula Light (Inverse Variant)
+ * Adapts high-contrast elements for white/light terminal backgrounds.
+ */
+const LIGHT_THEME: DefaultTheme = {
+  primary: (txt) => pc.magenta(txt),
+  secondary: (txt) => pc.magentaBright(txt),
+  success: (txt) => pc.green(txt),
+  warning: (txt) => pc.yellow(txt),
+  error: (txt) => pc.red(txt),
+  info: (txt) => pc.cyan(txt),
+  muted: (txt) => pc.blackBright(txt),
+  title: (txt) => pc.bgMagenta(pc.bold(pc.whiteBright(` ${txt} `))),
+  subtitle: (txt) => pc.dim(pc.white(txt)),
+  color: (txt) => pc.black(txt),
+  backgroundColor: (txt) => pc.bgWhite(` ${txt} `),
+  bold: (txt) => pc.bold(txt),
+  italic: (txt) => pc.italic(txt),
+  textDecoration: (txt) => pc.underline(txt),
+  textTransform: (txt) => txt.toUpperCase(),
+};
+
+/**
+ * TYPES
+ * Inspired by CSS properties.
+ */
+export type ThemeMode = 'dark' | 'light';
+export type Theme = ChainableTheme & string;
+
+export interface DefaultTheme {
+  // CSS Semantic Utilities
+  primary(text: string): string; // Accent/Brand color
+  secondary(text: string): string; // Supporting color
+  success(text: string): string; // Positive states
+  warning(text: string): string; // Cautionary states
+  error(text: string): string; // Destructive states
+  info(text: string): string; // Neutral information
+  muted(text: string): string; // De-emphasized metadata
+
+  // Typography Styles
+  title(text: string): string; // Primary bg + Bold White text
+  subtitle(text: string): string; // Dimmed White text
+
+  // CSS Styles
+  color(text: string): string; // color (Foreground body text)
+  backgroundColor(text: string): string; // background-color (Block wrapper)
+  bold(text: string): string; // font-weight: bold
+  italic(text: string): string; // font-style: italic
+  textDecoration(text: string): string; // text-decoration: underline
+  textTransform(text: string): string; // text-transform: uppercase (Simulated)
+}
+
+export type DefaultThemeKeys = Array<keyof DefaultTheme>;
+
+/**
+ * THEME INTERFACE
+ * Hybrid structure matching
+ * - string
+ * - direct text constructor function
+ * - recursive chain attributes
+ */
+export interface ChainableTheme {
+  (txt?: string): ChainableTheme & string;
+  // CSS Semantic Utilities
+  primary: ChainableTheme & string;
+  secondary: ChainableTheme & string;
+  success: ChainableTheme & string;
+  warning: ChainableTheme & string;
+  error: ChainableTheme & string;
+  info: ChainableTheme & string;
+  muted: ChainableTheme & string;
+  // Typography Styles
+  title: ChainableTheme & string;
+  subtitle: ChainableTheme & string;
+  // CSS Styles
+  color: ChainableTheme & string;
+  backgroundColor: ChainableTheme & string;
+  bold: ChainableTheme & string;
+  italic: ChainableTheme & string;
+  textDecoration: ChainableTheme & string;
+  textTransform: ChainableTheme & string;
+  toString(): string;
+}
+
+// Concrete array list to type guard the Proxy lookup property cleanly
+const VALID_KEYS: DefaultThemeKeys = [
+  'primary', 'secondary', 'success', 'warning', 'error', 'info', 'muted',
+  'title', 'subtitle', 'color', 'backgroundColor', 'bold', 'italic',
+  'textDecoration', 'textTransform'
+];
+
+// Global proxy helper
+export const useTheme = (activeTheme: DefaultTheme, initialTxt: string = '', pendingStyles: DefaultThemeKeys = []) => {
+  // Computes styles on the text whenever string conversion is triggered or new text is supplied
+  const compile = (textToStyle: string): string => {
+    return pendingStyles.reduce((result, styleKey) => activeTheme[styleKey](result), textToStyle);
+  };
+
+  // The handler function allows calling the chain instance like a function: theme('TEXT') or theme.bold('TEXT')
+  const targetFunction = (txt?: string) => {
+    const textToProcess = txt || initialTxt || '';
+    const compiledText = compile(textToProcess);
+    // Return a fresh theme node so operations can keep chaining off the outcome
+    return useTheme(activeTheme, compiledText, []);
+  };
+
+  return new Proxy(targetFunction, {
+    get(_, prop) {
+      // These symbols/methods intercept conversions to primitives (strings) automatically
+      if (prop === 'toString' || prop === 'valueOf' || prop === Symbol.toPrimitive) {
+        return () => compile(initialTxt);
+      }
+
+      // Type-safe guard to ensure the parameter matches a key on our active theme before executing it
+      if (typeof prop === 'string' && VALID_KEYS.includes(prop as keyof DefaultTheme)) {
+        const styleKey = prop as keyof DefaultTheme;
+
+        // If text is already present, apply style eagerly; otherwise, stack it up
+        if (initialTxt) {
+          const nextText = activeTheme[styleKey](initialTxt);
+          return useTheme(activeTheme, nextText, pendingStyles);
+        }
+
+        return useTheme(activeTheme, initialTxt, [...pendingStyles, styleKey]);
+      }
+
+      return undefined;
+    }
+  }) as unknown as ChainableTheme & string;
+};
+
+// Global factory helpers
+export const DarkTheme = useTheme(DARK_THEME);
+export const LightTheme = useTheme(LIGHT_THEME);
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Theme.ts 
+// TYPE     : .TS
+// PATH     : src/components/Theme.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : App.ts 
+// TYPE     : .TS
+// PATH     : src/components/App.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/components/App.ts
+import * as CLACK from '@clack/prompts';
+import type { Command } from '../commands/Command';
+import { Consolidate } from '../commands/Consolidate';
+import { Deconsolidate } from '../commands/Deconsolidate';
+import { Exit } from '../commands/Exit';
+import { Settings } from '../commands/Settings';
+import type { MainMenuOptions, State } from '../types';
+import { loadConfig, saveConfigToDisk } from './Config';
+import { DarkTheme, LightTheme, type ThemeMode } from './Theme';
+
+/**
+ * CONSTANTS
+ */
+const STRINGS = {
+  dark: 'dark',
+  light: 'light',
+  exit: 'exit',
+  title: ' CODEBASE CORPUS CONSOLIDATOR UTILITY ',
+  mainMenu: 'Main Menu:',
+  returnToMenu: 'Press Enter to return to main panel...',
+} as const;
+
+/**
+ * APP CLASS
+ */
+export class Application {
+  private static instance: Application | null = null;
+  private state!: State;
+  private commands: Command[] = [];
+  private mainMenuOptions: MainMenuOptions[] = [];
+
+  private constructor() { }
+
+  public static getInstance(): Application {
+    if (!this.instance) {
+      this.instance = new Application();
+    }
+    return this.instance;
+  }
+
+  private saveConfig = async (): Promise<void> => {
+    await saveConfigToDisk(this.state.config);
+  };
+
+  private updateTheme = (type: ThemeMode): void => {
+    this.state.theme = type === STRINGS.light ? LightTheme : DarkTheme;
+
+    // Type Safe Upgraded Boundary: Cast and execute safely via exposed public method
+    const settingsCmd = this.commands.find((cmd): cmd is Settings => cmd instanceof Settings);
+    if (settingsCmd) {
+      settingsCmd.updateThemeContext(this.state.theme);
+    }
+  };
+
+  public async init(exitFn: (code?: number) => void): Promise<void> {
+    // Load configuration
+    const config = await loadConfig();
+
+    // Set the current state
+    this.state = {
+      config,
+      theme: config.theme === STRINGS.light ? LightTheme : DarkTheme
+    };
+
+    // Load all Commands
+    this.commands = [
+      new Consolidate(this.state),
+      new Deconsolidate(this.state),
+      new Settings({ ...this.state, saveConfig: this.saveConfig, updateTheme: this.updateTheme }),
+      new Exit({ ...this.state, exit: exitFn }),
+    ];
+
+    // Load all main menu options by mapping commands and
+    // appending the exit option cleanly using spread
+    this.mainMenuOptions = [
+      ...this.commands.map(cmd => ({
+        value: cmd.key,
+        label: cmd.label,
+        hint: cmd.hint
+      }))
+    ];
+  }
+
+  public async run(exitFn?: (code?: number) => void): Promise<void> {
+    // Initialize the app
+    await this.init(exitFn ?? process.exit);
+
+    // Main Menu Loop
+    let shouldContinue = true;
+    while (shouldContinue) {
+      console.clear();
+      CLACK.intro(this.state.theme.title(STRINGS.title));
+
+      const choice = await CLACK.select({
+        message: this.state.theme(STRINGS.mainMenu).info,
+        options: this.mainMenuOptions,
+      });
+
+      // If user cancels (Ctrl+C) or chooses 'exit', break the loop.
+      if (CLACK.isCancel(choice) || choice === STRINGS.exit) {
+        shouldContinue = false;
+        break;
+      }
+
+      const command = this.commands.find(cmd => cmd.key === choice);
+      if (command) {
+        console.clear();
+        await command.execute();
+
+        // UI Performance Optimization: Bypass redundant extra confirmations
+        // when returning cleanly out of Settings configuration flows
+        if (command instanceof Settings) {
+          continue;
+        }
+
+        // After operational processing commands run, ask if the user wants to continue.
+        const wantsToReturn = await CLACK.confirm({
+          message: STRINGS.returnToMenu,
+        });
+
+        // If they cancel or say no, break the loop.
+        if (CLACK.isCancel(wantsToReturn) || !wantsToReturn) {
+          shouldContinue = false;
+        }
+      }
+    }
+
+    // The Exit command's execute method is called ONCE, at the very end.
+    const exitCmd = this.commands.find((cmd): cmd is Exit => cmd instanceof Exit);
+    if (exitCmd) {
+      await exitCmd.execute();
+    }
+  }
+}
+
+const App = Application.getInstance();
+export default App;
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : App.ts 
+// TYPE     : .TS
+// PATH     : src/components/App.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Constants.ts 
+// TYPE     : .TS
+// PATH     : src/components/Constants.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/components/Constants.ts
+
+import path from 'path';
+
+class ConstantsManager {
+  private readonly WIDTH = 40;
+  private readonly DASH = '-';
+  private readonly BLOCK = '█';
+  private readonly CUBE = '■';
+  private readonly COMMENT = '//';
+
+  public readonly BASE_DIR = process.cwd();
+  public readonly OUTPUT_DIR = 'ALL';
+  public readonly REBUILT_DIR = 'ALL_REBUILT';
+  public readonly GITIGNORE_PATH = path.join(this.BASE_DIR, '.gitignore');
+
+  private readonly SPACER = (char: string, num: number = 1): string => {
+    return char.repeat(num);
+  };
+
+  public readonly DIVIDER = this.SPACER(this.BLOCK, this.WIDTH);
+
+  public readonly TEARLINE_MARKER = `${this.COMMENT} ${this.SPACER(this.DASH, this.WIDTH)}TEARLINE${this.SPACER(this.DASH, this.WIDTH)}`;
+
+  public readonly RUNTIME_CONFIG_PATH = path.join(this.BASE_DIR, 'runtime.config.json');
+  public readonly ENCODING = 'utf-8';
+
+  public getStartBanner(filePath: string): string {
+    return this.createBanner(filePath, 'start');
+  }
+
+  public getEndBanner(filePath: string): string {
+    return this.createBanner(filePath, 'end');
+  }
+
+  private createBanner(filePath: string, type: 'start' | 'end'): string {
+    const tag = type === 'start' ? '-< START >-' : '-<  END  >-';
+    const bannerSpacer = this.SPACER(this.CUBE, this.WIDTH);
+    const meta = {
+      baseName: path.basename(filePath),
+      extension: path.extname(filePath),
+      filePath: filePath,
+    };
+
+    const banner = [
+      `${this.COMMENT}${bannerSpacer}${tag}${bannerSpacer}`,
+      `${this.COMMENT} FILE NAME: : ${meta.baseName} `,
+      `${this.COMMENT} TYPE     : .${meta.extension.toUpperCase().replace('.', '') || 'TXT'}`,
+      `${this.COMMENT} PATH     : ${meta.filePath.replace(/\\/g, '/')}`,
+      `${this.COMMENT} PROCESSED: ${new Date().toISOString()}`,
+      `${this.COMMENT}${bannerSpacer}${tag}${bannerSpacer}`,
+    ];
+
+    return banner.join('\n');
+  }
+}
+
+export const Constants = new ConstantsManager();
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : Constants.ts 
+// TYPE     : .TS
+// PATH     : src/components/Constants.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : HeaderComments.ts 
+// TYPE     : .TS
+// PATH     : src/utils/HeaderComments.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/utils/HeaderComments.ts
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { cancel, confirm, intro, isCancel, log, note, outro, select, spinner } from '@clack/prompts';
+import path from 'path';
+import pc from 'picocolors';
+
+/**
+ * CONSTANTS
+ */
+
+
+
+/**
+ * TYPES
+ */
+
+interface Theme {
+  primary(text: string): string;
+  success(text: string): string;
+  error(text: string): string;
+  muted(text: string): string;
+}
+
+const DarkTheme: Theme = {
+  primary: (txt) => pc.bgCyan(pc.black(` ${txt} `)),
+  success: (txt) => pc.green(txt),
+  error: (txt) => pc.red(txt),
+  muted: (txt) => pc.dim(txt),
+};
+
+interface HeaderCommentsDeps {
+  theme: Theme,
+  config: {
+    outputDir: string;
+    exclude: string[];
+  };
+}
+
+interface HeaderUpdate {
+  modified: boolean;
+  reason?: string;
+}
+
+interface ScanSummary {
+  total: number;
+  processed: number;
+  skipped: number;
+  failed: number;
+}
+
+type HeaderAction = 'inject' | 'strip' | 'exit';
+
+/**
+ * MAIN CLASSES
+ */
+
+export abstract class Command {
+  abstract readonly key: string;
+  abstract readonly label: string;
+  abstract readonly hint: string;
+  constructor(_deps: unknown) { }
+  abstract execute(): Promise<void>;
+}
+
+export class HeaderComments extends Command {
+  readonly key = 'headercomments';
+  readonly label = 'HeaderComments Manager';
+  readonly hint = 'Inject or strip contextual path comment descriptors';
+
+  private deps: HeaderCommentsDeps;
+
+  private readonly BASE_DIR = process.cwd();
+  private readonly COMMENT = '//';
+  private readonly HEADER_COMMENT = `${this.COMMENT} FILE-PATH:`;
+  private readonly SHEBANG_REGEX = /^#!.*/;
+  private readonly FILE_EXTENSIONS = ['js', 'ts', 'jsx', 'tsx', 'json', 'jsonc', 'toml', 'yaml', 'yml', 'md'];
+
+  private readonly BULLET = {
+    arrow: '->',
+    arrowHead: '➤',
+    circle: {
+      green: '🟢',
+      white: '⚪',
+      red: '🔴',
+      purple: '🟣',
+    },
+    cancel: '✖️',
+    complete: '✅',
+    success: '☑️ ',
+    error: '☠️',
+    exit: '❌',
+    comment: '💬',
+  } as const;
+
+  constructor(deps: HeaderCommentsDeps) {
+    super(deps);
+    this.deps = deps;
+  }
+
+  private toUnixPath(p: string): string {
+    return p.replace(/\\/g, '/');
+  }
+
+  private isIgnorePath(filePath: string, compiledExcludes: any[]): boolean {
+    const unixPath = this.toUnixPath(filePath);
+    return unixPath.startsWith('node_modules/') ||
+      unixPath.startsWith('.git/') ||
+      unixPath.startsWith(`${this.deps.config.outputDir}/`) ||
+      compiledExcludes.some(glob => glob.match(filePath));
+  }
+
+  public async enforceHeaderComments(absolutePath: string): Promise<HeaderUpdate> {
+    const file = Bun.file(absolutePath);
+    const contents = await file.text();
+
+    if (contents.includes(this.HEADER_COMMENT)) {
+      return { modified: false, reason: 'Header comment already present.' };
+    }
+
+    const relativePath = path.relative(this.BASE_DIR, absolutePath);
+    const unixRelativePath = this.toUnixPath(relativePath);
+    const targetHeader = `${this.HEADER_COMMENT} ${unixRelativePath}\n`;
+
+    const firstNewlineIdx = contents.indexOf('\n');
+    const firstLine = firstNewlineIdx === -1 ? contents : contents.slice(0, firstNewlineIdx).replace('\r', '');
+
+    let updatedContent = '';
+    if (this.SHEBANG_REGEX.test(firstLine)) {
+      const remainingContent = firstNewlineIdx === -1 ? '' : contents.slice(firstNewlineIdx + 1);
+      const separator = remainingContent.trim().length > 0 ? '\n' : '';
+      updatedContent = `${firstLine}\n${targetHeader}${separator}${remainingContent}`;
+    } else {
+      const separator = contents.length > 0 ? '\n' : '';
+      updatedContent = `${targetHeader}${separator}${contents}`;
+    }
+
+    await Bun.write(absolutePath, updatedContent);
+    return { modified: true };
+  }
+
+  public async removeHeaderComments(absolutePath: string): Promise<HeaderUpdate> {
+    const file = Bun.file(absolutePath);
+    const contents = await file.text();
+
+    if (!contents.includes(this.HEADER_COMMENT)) {
+      return { modified: false, reason: 'Header comment not present.' };
+    }
+
+    const firstNewlineIdx = contents.indexOf('\n');
+    const firstLine = firstNewlineIdx === -1 ? contents : contents.slice(0, firstNewlineIdx).replace('\r', '');
+
+    let updatedContent = '';
+
+    if (this.SHEBANG_REGEX.test(firstLine)) {
+      const remainingContent = firstNewlineIdx === -1 ? '' : contents.slice(firstNewlineIdx + 1);
+      const nextNewlineIdx = remainingContent.indexOf('\n');
+      const secondLine = nextNewlineIdx === -1 ? remainingContent : remainingContent.slice(0, nextNewlineIdx);
+
+      if (secondLine.includes(this.HEADER_COMMENT)) {
+        updatedContent = `${firstLine}\n${nextNewlineIdx === -1 ? '' : remainingContent.slice(nextNewlineIdx + 1)}`;
+      } else {
+        updatedContent = `${firstLine}\n${remainingContent.replace(this.HEADER_COMMENT, '')}`;
+      }
+    } else {
+      if (firstLine.includes(this.HEADER_COMMENT)) {
+        updatedContent = firstNewlineIdx === -1 ? '' : contents.slice(firstNewlineIdx + 1);
+      } else {
+        updatedContent = contents.replace(new RegExp(`.*${RegExp.escape(this.HEADER_COMMENT)}.*\\n?`, 'g'), '');
+      }
+    }
+
+    await Bun.write(absolutePath, updatedContent.trimStart());
+    return { modified: true };
+  }
+
+  private async processBatch(action: 'inject' | 'strip'): Promise<ScanSummary> {
+    const summary: ScanSummary = { total: 0, processed: 0, skipped: 0, failed: 0 };
+    const extensionsList = this.FILE_EXTENSIONS.join(',');
+    const glob = new Bun.Glob(`**/*.{${extensionsList}}`);
+
+    const excludeGlobs = this.deps.config.exclude.map(ex => new Bun.Glob(ex));
+    const fileBuffer: string[] = [];
+
+    for await (const relativePath of glob.scan({ cwd: this.BASE_DIR })) {
+      fileBuffer.push(relativePath);
+    }
+
+    summary.total = fileBuffer.length;
+
+    await Promise.all(fileBuffer.map(async (relativePath) => {
+      if (this.isIgnorePath(relativePath, excludeGlobs)) {
+        summary.skipped++;
+        return;
+      }
+
+      const absolutePath = path.join(this.BASE_DIR, relativePath);
+      try {
+        const res = action === 'inject'
+          ? await this.enforceHeaderComments(absolutePath)
+          : await this.removeHeaderComments(absolutePath);
+
+        if (res.modified) summary.processed++;
+        else summary.skipped++;
+      } catch (error) {
+        summary.failed++;
+        log.error(`${this.BULLET.error} Exception encountered for ${relativePath}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }));
+
+    return summary;
+  }
+
+  async execute(): Promise<void> {
+    console.clear();
+    intro(`${pc.bgYellow(pc.black(' HEADERCOMMENTS '))} ${pc.yellow(pc.dim('Scans and Synchronizes Headers'))}`);
+
+    const operation = await select<HeaderAction>({
+      message: pc.cyan('Pick an option:'),
+      options: [
+        { value: 'inject', label: 'Inject HeaderComments', hint: 'Append contextual tags' },
+        { value: 'strip', label: 'Strip HeaderComments', hint: 'Scrub existing comment tags' },
+        { value: 'exit', label: 'Exit menu context' }
+      ]
+    });
+
+    if (isCancel(operation) || operation === 'exit') {
+      cancel(pc.yellow(`${this.BULLET.success} Operation aborted. Project files left unmodified.`));
+      return;
+    }
+
+    const shouldProceed = await confirm({
+      message: `Verify and run structural updates across project root directory?\n${this.BULLET.arrowHead} (${pc.cyan(this.BASE_DIR)})`,
+      initialValue: operation === 'inject',
+    });
+
+    if (isCancel(shouldProceed) || !shouldProceed) {
+      cancel(pc.yellow(`${this.BULLET.success} Operation aborted. Project files left unmodified.`));
+      return;
+    }
+
+    const s = spinner();
+    s.start(pc.cyan('Evaluating active project workspaces and indexing targets...'));
+
+    try {
+      const metrics = await this.processBatch(operation);
+      s.stop(pc.green('Header resolution sweep finished processing successfully!!!\n'));
+
+      const labelText = this.BULLET.circle.green + (operation === 'inject' ? ' Processed:' : ' Stripped:');
+      const hintText = this.BULLET.arrowHead + (operation === 'inject' ? ' Appended or confirmed targets' : ' Erased comment headers');
+
+      const reportBody = [
+        `${pc.bold(labelText)} ${pc.green(metrics.processed.toString().padStart(6))}   ${pc.dim(hintText)}`,
+        `${pc.bold(this.BULLET.circle.white + ' Skipped: ')} ${pc.dim(metrics.skipped.toString().padStart(8))}   ${pc.dim(this.BULLET.arrowHead + ' Excluded folders & skips')}`,
+        `${pc.bold(this.BULLET.circle.red + ' Failed:  ')} ${pc.red(metrics.failed.toString().padStart(9))}   ${pc.dim(this.BULLET.arrowHead + ' Hard drive read/write blocks')}`,
+        pc.dim('----------------------------------------------------'),
+        `${pc.bold(this.BULLET.circle.purple + ' TOTAL:   ')} ${pc.magenta(metrics.total.toString().padStart(10))}   ${pc.dim(this.BULLET.arrowHead + ' Aggregated project file count')}`
+      ].join('\n');
+
+      note(reportBody, pc.cyan(`Execution Metrics Summary Window`));
+      outro(this.deps.theme.success('Project workspace synchronization matches verified state parameters.'));
+    } catch (error: unknown) {
+      s.stop(this.deps.theme.error('A critical fatal failure crashed processing workflows.'));
+      log.error(error instanceof Error ? error.message : String(error));
+    }
+  }
+}
+
+/**
+ * STANDALONE EXECUTION ENGINE ENTRY POINT
+ */
+
+// c8 ignore start
+if (import.meta.main) {
+  const app = new HeaderComments({
+    theme: DarkTheme,
+    config: {
+      outputDir: 'ALL',
+      exclude: [
+        '**/*.{toml,json,jsonc}',
+        '.vscode/**',
+        'ALL/**',
+        'ALL_REBUILT/**',
+        'logs/**',
+        'node_modules/**',
+        'bun.lock',
+        'package.json',
+        'README.md',
+        'tsconfig.json',
+        'dist/**',
+        'coverage/**'
+      ]
+    }
+  });
+
+  app.execute().catch((err) => {
+    log.error(`Fatal crash: ${err?.message || err}`);
+    process.exit(1);
+  });
+}
+// c8 ignore stop
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : HeaderComments.ts 
+// TYPE     : .TS
+// PATH     : src/utils/HeaderComments.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : validator.ts 
+// TYPE     : .TS
+// PATH     : src/utils/validator.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE-PATH: src/utils/validators.ts
+
+/**
+ * CONSTANTS
+ */
+
+const STRINGS = {
+  required: 'This field is required and cannot be left blank.',
+  noSpaces: 'Spaces are not allowed in directory path names.',
+  invalidChars: 'Directory name contains illegal path symbols (e.g., \\, :, *, ?, ", <, >, |).',
+  emptyGlob: 'Glob lists cannot contain completely blank strings.',
+} as const;
+
+const SPACES_RE = /\s/;
+const INVALID_CHARS_RE = /[<>:"|?*]/;
+const EMPTY_GLOB_RE = /(^\s*,|,\s*,|,\s*$)/;
+
+/**
+ * TYPES
+ */
+
+
+
+/**
+ * MAIN FUNCTIONS
+ */
+
+export const validateDirectory = (input: string): string | undefined => {
+  const trimmed = input.trim();
+  if (!trimmed) return STRINGS.required;
+
+  if (SPACES_RE.test(trimmed)) return STRINGS.noSpaces;
+  if (INVALID_CHARS_RE.test(trimmed)) return STRINGS.invalidChars;
+
+  return undefined;
+};
+
+export const validateGlobInput = (input: string): string | undefined => {
+  const trimmed = input.trim();
+
+  if (!trimmed) return STRINGS.required;
+  if (EMPTY_GLOB_RE.test(trimmed)) return STRINGS.emptyGlob;
+
+  return undefined;
+};
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : validator.ts 
+// TYPE     : .TS
+// PATH     : src/utils/validator.ts
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+// ----------------------------------------TEARLINE----------------------------------------
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : log-tests.ps1 
+// TYPE     : .PS1
+// PATH     : log-tests.ps1
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-< START >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# FILE-PATH: ./log-tests.ps1
+
+# ---------------------------------------------------------------------------------------
+# Configuration
+$scriptFolder = if ($PSScriptRoot) { $PSScriptRoot } else { "." }
+
+$timestamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
+$logDir = "$scriptFolder/logs"
+$logFile = "${timestamp}_tests.results.log"
+$logFilePath = "$logDir/$logfile"
+$testsPath = "$scriptFolder/tests"
+
+╭
+─
+╮
+│
+╰
+╯
+# ---------------------------------------------------------------------------------------
+# Ensure the logs directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+}
+
+# ---------------------------------------------------------------------------------------
+# LOOK AND COUNT (Before creating the new log)
+$existingLogs = Get-ChildItem -Path $logDir -Filter "*_tests.results.log" | Sort-Object Name
+$initialCount = $existingLogs.Count
+
+Write-Host
+Write-Host "Running tests and logging output to:" -ForegroundColor Cyan
+Write-Host "╭──────────────────────────────────────────────╮"
+Write-Host "│    $logFile...    │"
+Write-Host "╰──────────────────────────────────────────────╯"
+Write-Host
+
+# ---------------------------------------------------------------------------------------
+# CREATE THE NEW LOG (Runs the test)
+& bun test --coverage "$testsPath" > "$logFilePath" 2>&1
+
+# ---------------------------------------------------------------------------------------
+# CHECK IF THE NEW TOTAL EQUALS 11
+# If it was 10 before, adding 1 makes the total exactly 11
+if ($initialCount -eq 10) {
+    # 4. DELETE THE OLDEST LOG FILE
+    $existingLogs | Select-Object -First 1 | Remove-Item -Force
+    Write-Host "Oldest log file has been removed." -ForegroundColor Cyan
+}
+
+# ---------------------------------------------------------------------------------------
+# Check the exit code of the cmd wrapper
+if ($LASTEXITCODE -eq 0) {
+    Write-Host
+    Write-Host "Tests completed successfully. All tests passed." -ForegroundColor Green
+    exit 0
+} else {
+    Write-Host
+    Write-Host "An error occurred. See log for details : $logFilePath" -ForegroundColor Red
+    exit $LASTEXITCODE
+}
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// FILE NAME: : log-tests.ps1 
+// TYPE     : .PS1
+// PATH     : log-tests.ps1
+// PROCESSED: 2026-07-19T15:32:34.363Z
+//■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■-<  END  >-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

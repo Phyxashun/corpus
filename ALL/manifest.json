@@ -1,0 +1,42 @@
+{
+  "files": {
+    "1_SOURCE_FILES.txt": [
+      "src/types.d.ts",
+      "src/index.ts",
+      "src/commands/Exit.ts",
+      "src/commands/Command.ts",
+      "src/commands/Settings.ts",
+      "src/commands/Consolidate.ts",
+      "src/commands/Deconsolidate.ts",
+      "src/components/Config.ts",
+      "src/components/Theme.ts",
+      "src/components/App.ts",
+      "src/components/Constants.ts",
+      "src/utils/HeaderComments.ts",
+      "src/utils/validator.ts",
+      "log-tests.ps1"
+    ],
+    "4_CONFIG_FILES.txt": [
+      "tsconfig.json",
+      "package.json",
+      "src/config/config.toml",
+      "src/config/presets.toml",
+      "prettier.config.ts",
+      "eslint.config.ts",
+      "tests/config.test.ts"
+    ],
+    "5_TEST_FILES.txt": [
+      "tests/preload.ts",
+      "tests/commands.test.ts",
+      "tests/settings.test.ts",
+      "tests/setup.ts",
+      "tests/app.test.ts",
+      "tests/config.test.ts",
+      "tests/index.test.ts"
+    ],
+    "6_DOC_FILES.txt": [
+      "README.md"
+    ]
+  },
+  "emptyDirectories": []
+}
