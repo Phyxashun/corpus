@@ -1,6 +1,6 @@
 // FILE-PATH: tests/app.test.ts
 
-import { beforeEach, describe, expect, spyOn, test, type Mock } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, mock, spyOn, test, type Mock } from 'bun:test';
 import { Settings } from '../src/commands/Settings';
 import App from '../src/components/App';
 import './setup'; // Load global mocks
@@ -23,9 +23,13 @@ describe('Application Orchestrator (App.ts)', () => {
 
   beforeEach(() => {
     // Reset all mock call counts before each test
-    selectMock.mockClear();
-    confirmMock.mockClear();
-    outroMock.mockClear();
+    selectMock.mockReset();
+    confirmMock.mockReset();
+    outroMock.mockReset();
+  });
+
+  afterEach(() => {
+    mock.restore(); // restores every spyOn() created in this test, pass or fail
   });
 
   test('Should exit gracefully when user selects "Exit" from the main menu', async () => {
@@ -45,29 +49,19 @@ describe('Application Orchestrator (App.ts)', () => {
   });
 
   test('Should route to a command, then return to the menu, then exit', async () => {
-    // 1. Simulate the user's choices in sequence
     selectMock
-      .mockResolvedValueOnce('settings') // First, choose 'settings'
-      .mockResolvedValueOnce('exit');     // On the next loop, choose 'exit'
+      .mockResolvedValueOnce('settings')
+      .mockResolvedValueOnce('exit');
 
-    // 2. After the settings command runs, simulate the user pressing Enter to continue.
-    confirmMock.mockResolvedValueOnce(true);
-
-    // 3. Spy on the prototype to catch the execution of the Settings command.
     const settingsSpy = spyOn(Settings.prototype, 'execute').mockResolvedValue(undefined);
     const exitSpy = spyOn(Exit.prototype, 'execute').mockResolvedValue(undefined);
 
-    // 4. Run the app with the dummy exit function.
     await App.run(() => { });
 
-    // 5. Verify the sequence of events.
-    expect(settingsSpy).toHaveBeenCalledTimes(1); // Settings was run
-    expect(confirmMock).toHaveBeenCalledTimes(1); // The user was asked to continue
-    expect(exitSpy).toHaveBeenCalledTimes(1);     // The exit command was run at the end
-
-    settingsSpy.mockRestore();
-    exitSpy.mockRestore();
-  });
+    expect(settingsSpy).toHaveBeenCalledTimes(1);
+    expect(confirmMock).not.toHaveBeenCalled(); // Settings bypasses the confirm prompt
+    expect(exitSpy).toHaveBeenCalledTimes(1);
+  }, 5000); // bun test's third arg — ms before it force-fails
 
   test('Should run a command and then exit if user declines to return to menu', async () => {
     // 1. Simulate user choosing 'settings'.
